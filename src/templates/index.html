@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% for floor in floors %}
+        <div class="row">
+            {% for room in floor %}
+                <div class="card {{ 'booked' if room[2] == 1 else 'empty' }}" onclick="window.location='room/{{ room[0] }}'">{{room[0]}}</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

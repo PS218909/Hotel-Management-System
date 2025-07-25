@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin: auto;width: 80%;">
+    <h1>Total: {{overall_total}}</h1>
+    <h1>Cash: {{total_cash_available or 0}}</h1>
+</div>
+    <form action="/account" method="post">
+        <div class="input-div">
+            <label for="room">Room No.: </label>
+            <select name="room" id="room">
+                <option value="Credit">Credit</option>
+                {% for room in rooms %}
+                    {% if room['Status'] == 2 %}
+                        <option value="{{room['Room No.']}}">{{room['Room No.']}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-div">
+            <label for="amount">Amount: </label>
+            <input type="number" name="amount" id="amount">
+        </div>
+        <div class="input-div">
+            <label for="mode">Mode: </label>
+            <input type="text" name="mode" id="mode" list="modes">
+            <datalist id="modes">
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+            </datalist>
+        </div>
+        <div class="input-div">
+            <label for="Description">Description: </label>
+            <input type="text" name="description" id="description">
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Name</th>
+                <th>Room No.</th>
+                <th>Amount Paid</th>
+                <th>Mode Of Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+                <tr>
+                    <td>{{payment['datetime'].replace('T', ' ')}}</td>
+                    <td>{{payment['Name']}}</td>
+                    <td>{{payment['room']}}</td>
+                    <td>{{payment['amount']}}</td>
+                    <td>{{payment['mode']}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

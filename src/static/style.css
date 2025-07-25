@@ -1,0 +1,92 @@
+:root {
+    --background: 47 100% 95%;
+    --foreground: 0 0% 0%;
+}
+
+body, html {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+}
+
+nav {
+    justify-content: space-between;
+}
+
+ul {
+    list-style-type: none;
+    gap: 30px;
+    justify-content: space-around;
+    & li {
+        width: 80px;
+    }
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    font-size: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+}
+
+.success, .booked {
+    background-color: hsl(104, 85%, 76%);
+}
+
+.error, .empty {
+    background-color: hsl(0, 85%, 76%);
+}
+
+form {
+    width: 80%;
+    margin: auto;
+    border: 1px solid hsl(var(--background) h s calc(l - 20));
+    & .input-div {
+        margin-bottom: 8px;
+        display: flex;
+        font-size: 18px;
+        & label {
+            border-radius: 6px;
+            background-color: #719eff;
+            padding: 8px 20px;
+            text-wrap: nowrap;
+        }
+        & input[type='text'], input[type='number'], input[type='datetime-local'], input[type='date'], select {
+            font-size: 18px;
+            padding: 8px 8px;
+            border: 0px;
+            outline: 0;
+            width: 100%;
+            border: 3px solid transparent;
+            transition: 0.4s;
+        }
+        & input[type='text']:focus, input[type='number']:focus, input[type='datetime-local']:focus, input[type='date']:focus {
+            border: 3px solid #719eff;
+        }
+    }
+    & button[type='submit'] {
+        border: 1px solid black;
+        background-color: #719eff;
+        font-size: 18px;
+        width: 100%;
+    }
+}
+
+table {
+    margin: auto;
+    text-align: center;
+    text-wrap: wrap;
+}
+
+th {
+    padding-inline: 40px;
+}

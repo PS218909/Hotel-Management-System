@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form action="/report" method="post">
+        <div class="input-div">
+            <label for="date">Date</label>
+            <input type="date" name="date" id="date" required>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

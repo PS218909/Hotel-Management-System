@@ -1,10 +1,11 @@
 import requests
 from flask import Flask, redirect, url_for, request,render_template, send_file
+from flask_cors import CORS
 from .routes.api import api
 from .util import *
 
 app = Flask(__name__)
-
+CORS(app, resources={'/api/*': {'origins': '*'}})
 
 @app.route('/')
 def home_page():
@@ -38,7 +39,7 @@ def account_page():
     context = {
         'overall_total': total_balance(''),
         'total_cash_available': total_balance('Cash'),
-        'payments': payments,
+        'payments': payments[::-1],
         'rooms': get_rooms()
     }
     return render_template('account.html', **context)
@@ -48,11 +49,11 @@ def go_to_room(room_no):
     query2 = search_query(ROOMS_DB, f'Room_No_==\'{room_no}\'')
     if request.method == 'POST':
         # Add Data to db
-        
-        query = search_query(CUSTOMER_DB, f'Id_Type == \"{request.form.get("id_type", "").lower()}\" and Id_Detail.str.contains(\"{request.form.get("id_detail", "").lower()}\")')
+        query = search_query(CUSTOMER_DB, f'Id_Type.str.lower().str.contains(\"{request.form.get("id_type", "")}\") and Id_Detail.str.lower().str.contains(\"{request.form.get("id_detail", "").lower()}\")')
+        query = search_customer_(id_type=request.form.get('id_type', ''), id_details=request.form.get('id_detail', ''))
         if len(query) == 0:
             customer_id = get_next_id(CUSTOMER_DB)
-            add_data(CUSTOMER_DB, [customer_id, request.form.get('name'), str(request.form.get('address')).replace(',', '|'), request.form.get('phone'), request.form.get('id_type', '').lower(), request.form.get('id_detail', '').lower()])
+            add_data(CUSTOMER_DB, [customer_id, request.form.get('name'), str(request.form.get('address')).replace(',', '|'), request.form.get('phone'), request.form.get('id_type', ''), request.form.get('id_detail', '')])
         else:
             customer_id = query[0]['id']
         query3 = search_query(REGISTER_DB, f'room == \'{room_no}\' and checkout == \'\'')

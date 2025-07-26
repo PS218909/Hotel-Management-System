@@ -19,11 +19,11 @@
         </div>
         <div class="input-div">
             <label for="amount">Amount: </label>
-            <input type="number" name="amount" id="amount">
+            <input type="number" name="amount" id="amount" required>
         </div>
         <div class="input-div">
             <label for="mode">Mode: </label>
-            <input type="text" name="mode" id="mode" list="modes">
+            <input type="text" name="mode" id="mode" list="modes" required>
             <datalist id="modes">
                 <option value="Cash">Cash</option>
                 <option value="UPI">UPI</option>
@@ -32,7 +32,7 @@
         </div>
         <div class="input-div">
             <label for="Description">Description: </label>
-            <input type="text" name="description" id="description">
+            <input type="text" name="description" id="description" required>
         </div>
         <button type="submit">Submit</button>
     </form>

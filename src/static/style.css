@@ -46,39 +46,78 @@ ul {
     background-color: hsl(0, 85%, 76%);
 }
 
+.selection {
+    width: 80%;
+    margin: auto;
+}
+
+.selection button {
+    width: 100%;
+}
+
+.modal {
+    display: none;
+    overflow: scroll;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    height: 80vh;
+    background-color: aliceblue;
+    justify-content: center;
+    align-items: center;
+    padding-inline: 10px;
+}
+.modal .modal-head {
+    font-size: 24px;
+    margin-bottom: 7px;
+}
+
+.option-selection {
+    transition: 0.4s;
+    padding-inline: 12px;
+}
+
+.option-selection:hover {
+    background-color: black;
+    color: white;
+}
+
 form {
     width: 80%;
     margin: auto;
     border: 1px solid hsl(var(--background) h s calc(l - 20));
-    & .input-div {
-        margin-bottom: 8px;
-        display: flex;
-        font-size: 18px;
-        & label {
-            border-radius: 6px;
-            background-color: #719eff;
-            padding: 8px 20px;
-            text-wrap: nowrap;
-        }
-        & input[type='text'], input[type='number'], input[type='datetime-local'], input[type='date'], select {
-            font-size: 18px;
-            padding: 8px 8px;
-            border: 0px;
-            outline: 0;
-            width: 100%;
-            border: 3px solid transparent;
-            transition: 0.4s;
-        }
-        & input[type='text']:focus, input[type='number']:focus, input[type='datetime-local']:focus, input[type='date']:focus {
-            border: 3px solid #719eff;
-        }
-    }
-    & button[type='submit'] {
-        border: 1px solid black;
-        background-color: #719eff;
-        font-size: 18px;
-        width: 100%;
-    }
+}
+
+form .input-div {
+    margin-bottom: 8px;
+    display: flex;
+    font-size: 18px;
+}
+form .input-div label {
+    border-radius: 6px;
+    background-color: #719eff;
+    padding: 8px 20px;
+    text-wrap: nowrap;
+}
+form .input-div input[type='text'], form .input-div input[type='number'], form .input-div input[type='datetime-local'], form .input-div input[type='date'], select {
+    font-size: 18px;
+    padding: 8px 8px;
+    border: 0px;
+    outline: 0;
+    width: 100%;
+    border: 3px solid transparent;
+    transition: 0.4s;
+}
+form .input-div input[type='text']:focus, form .input-div input[type='number']:focus, form .input-div input[type='datetime-local']:focus, form .input-div input[type='date']:focus {
+    border: 3px solid #719eff;
+}
+form button[type='submit'] {
+    border: 1px solid black;
+    background-color: #719eff;
+    font-size: 18px;
+    width: 100%;
 }
 
 table {

@@ -5,10 +5,27 @@
         <h1>Time Passed: {{time_passed}}</h1>
         <h1>Amount Paid: {{amount_paid}}</h1>
     {% endif %}
+    <div class="selection">
+        <button data-toggle="selectCustomer">Select Customer</button>
+        <div class="modal" id="selectCustomer">
+            <div class="modal-head">Select Customer</div>
+            <div class="modal-body">
+                <span>(Press ESC to close.)</span>
+                <input type="text" id="searchName" placeholder="Name" autocomplete="off">
+                <input type="number" id="searchPhone" placeholder="Phone No.">
+                <div class="options" id="options">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
     <form action="/room/{{room_no}}" method="post" autocomplete="off">
         <div class="input-div">
             <label for="name">Name</label>
-            <input type="text" name="name" id="name" value="{{ formData['name'] }}" required>
+            <input type="text" name="name" id="name" value="{{ formData['name'] }}" list="namelist" required>
+            <datalist id="namelist">
+                
+            </datalist>
         </div>
         <div class="input-div">
             <label for="phone">Phone No.</label>
@@ -57,19 +74,57 @@
         </div>
     </form>
     <script>
-        document.getElementById('name').addEventListener('keydown', (e) => {
-            // console.log(e.target);
-            // fetch('http://127.0.0.1:5000/api/search?name='+e.target.value).then((res) => {
-            //     if (!res.ok) {
-            //         console.log(res.status);
-            //     }
-            //     return res.json();
-            // }).then((data) => {
-            //     console.log(data);
-            // }).catch(err => {
-            //     console.error(err)
-            // })
+        function setData(data) {
+            document.getElementById('name').value = data.Name;
+            document.getElementById('phone').value = data.Phone;
+            document.getElementById('address').value = data.Address.replaceAll('|', ',');
+            document.getElementById('id_type').value = data['Id Type'];
+            document.getElementById('id_detail').value = data['Id Detail'];
+            document.getElementById('selectCustomer').style.display = 'none';
+        }
+        function send_api_req() {
+            fetch('http://127.0.0.1:5000/api/search?name='+document.getElementById('searchName').value+'&phone='+document.getElementById('searchPhone').value).then((res) => {
+                if (!res.ok) {
+                    console.log(res.status);
+                }
+                return res.json();
+            }).then((data) => {
+                const nl = document.getElementById('options');
+                nl.innerHTML = '';
+                for (let i = 0;i < data.length;i++) {
+                    const opt = document.createElement('div');
+                    opt.setAttribute('class', 'option-selection')
+                    opt.onclick = (eve) => {
+                        setData(data[i]);
+                    }
+                    opt.innerHTML = `${data[i].Name}&emsp;${data[i].Phone}`;
+                    nl.appendChild(opt);
+                }
+            }).catch(err => {
+                console.error(err)
+            })
+        }
+        
+        document.getElementById('searchName').addEventListener('keyup', (e) => {
+            // if ('qertyuiopasdfghjklzxcvbnm1234567890'.includes(e.key.toLowerCase()))
+                send_api_req();
         })
-        const date = Date.parse(document.getElementById('check_in').value + 'Z');
+        document.getElementById('searchPhone').addEventListener('keyup', (e) => {
+            // if ('qertyuiopasdfghjklzxcvbnm1234567890'.includes(e.key.toLowerCase()))
+                send_api_req();
+        })
+        const element = document.querySelector('[data-toggle]');
+        element.onclick = (e) => {
+            const modalElement = document.getElementById(e.target.dataset.toggle);
+            modalElement.style.display = 'block';
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    modalElement.style.display = 'none';
+                    document.removeEventListener('keyup', handleEscape);
+                }
+            };
+
+            document.addEventListener('keyup', handleEscape);
+        }
     </script>
 {% endblock %}

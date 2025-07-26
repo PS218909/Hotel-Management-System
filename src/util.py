@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Inches, Pt
 
 DATASET = 'dataset'
 TEMP_DOCX = os.path.join(DATASET, 'TEMP.docx')
@@ -111,6 +112,12 @@ def search_query(file, query):
     df.columns = temp
     return df.to_dict(orient='records')
 
+def search_customer_(name='', phone='', id_type='', id_details=''):
+    df = pd.read_csv(CUSTOMER_DB, index_col=False)
+    df = df.astype(str)
+    df = df[(df['Name'].str.lower().str.startswith(name.lower())) & (df['Phone'].str.lower().str.startswith(phone.lower())) & (df['Id Type'].str.lower().str.contains(id_type.lower())) & (df['Id Detail'].str.lower().str.contains(id_details.lower()))]
+    return df.to_dict(orient='records')
+
 def get_next_id(file, id_col = 'id'):
     df = pd.read_csv(file, index_col=False)
     if not df.empty:
@@ -126,7 +133,7 @@ def total_balance(mode):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
     df['amount'] = df['amount'].astype(int)
     if mode != '':
-        return pd.Series(df.loc[df['mode'].str.lower() == mode.lower(), 'amount']).sum()
+        return pd.Series(df.loc[(df['mode'].str.lower() == mode.lower()) & (df['register_id'] != -1), 'amount']).sum() - pd.Series(df.loc[(df['mode'].str.lower() == mode.lower()) & (df['register_id'] == -1), 'amount']).sum()
     return pd.Series(df['amount']).sum()
 
 def payment_info():
@@ -140,10 +147,12 @@ def payment_info():
 
     # Step 2: Join the result with transaction
     final_df = df3.merge(register_customer, left_on='register_id', right_on='id_register', how='left')
-    final_df.fillna('')
+    final_df['Name'] = final_df['Name'].fillna('Credit')
+    final_df['room'] = final_df['room'].fillna('-1')
 
     # Step 3: Select the desired columns
     result = final_df[['Name', 'room', 'amount', 'datetime', 'mode']]
+    result['room'] = result['room'].astype(int)
     return result.to_dict(orient='records')
     
 def get_amount_paid(reg_id):
@@ -157,31 +166,43 @@ def add_to_pending(data):
 
 def generate_report(date):
     df = pd.read_csv(REGISTER_DB, index_col=False)
-    df = df[df['checkin'].str.contains(date)]
+    df = df[(df['checkin'].str.contains(date)) | (df['checkout'].isna())]
 
     df2 = pd.read_csv(CUSTOMER_DB, index_col=False)
     df2['Address'] = df2['Address'].str.replace('|', ',')
 
     final_df = df.merge(df2, how='left', left_on='customer_id', right_on='id', suffixes=('_register', '_customer'))
     docx = Document()
-    docx.add_heading('Hotel Maheswari Inn').paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    docx.add_heading('Behind Bus Stand, Malkangiri, Odisha', level=3).paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    header1 = docx.add_heading('Hotel Maheswari Inn')
+    header1.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    header1.style.font.size = Pt(36) # type: ignore
+    header2 = docx.add_heading('Behind Bus Stand, Malkangiri, Odisha', level=3)
+    header2.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    header2.style.font.size = Pt(24) # type: ignore
+    docx.add_paragraph(f'Date: {date}', ).paragraph_format.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
     table = docx.add_table(rows=len(final_df) + 1, cols=6)
     table.style = 'Table Grid'
     table.rows[0].cells[0].text = 'Sl. No.'
-    table.rows[0].cells[1].text = 'Name'
-    table.rows[0].cells[2].text = 'Address'
+    table.rows[0].cells[1].text = 'Name & Address'
+    table.rows[0].cells[2].text = 'Check In'
     table.rows[0].cells[3].text = 'Phone'
     table.rows[0].cells[4].text = 'Id Type'
     table.rows[0].cells[5].text = 'Id Detail'
     for idx, row in final_df.iterrows():
         idx_int = int(idx) # type: ignore
         table.rows[idx_int + 1].cells[0].text = str(idx_int + 1) # pyright: ignore[reportOperatorIssue]
-        table.rows[idx_int + 1].cells[1].text = row['Name']
-        table.rows[idx_int + 1].cells[2].text = row['Address']
+        table.rows[idx_int + 1].cells[1].text = row['Name'] + '\n' + row['Address']
+        table.rows[idx_int + 1].cells[2].text = '-'.join(row['checkin'].split('T')[0].split('-')[::-1]) + '\n' + row['checkin'].split('T')[1]
         table.rows[idx_int + 1].cells[3].text = str(row['Phone'])
         table.rows[idx_int + 1].cells[4].text = row['Id Type']
         table.rows[idx_int + 1].cells[5].text = str(row['Id Detail'])
+        table.rows[idx_int + 1].cells[0].width = Inches(0.5)
+        table.rows[idx_int + 1].cells[1].width = Inches(3)
+        table.rows[idx_int + 1].cells[2].width = Inches(2.5)
+        table.rows[idx_int + 1].cells[3].width = Inches(0.5)
+        table.rows[idx_int + 1].cells[4].width = Inches(0.5)
+        table.rows[idx_int + 1].cells[5].width = Inches(0.5)
     docx.save(TEMP_DOCX)
 
 

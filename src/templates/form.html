@@ -88,7 +88,7 @@
                     console.log(res.status);
                 }
                 return res.json();
-            }).then((data) => {
+            }).catch((err) => {}).then((data) => {
                 const nl = document.getElementById('options');
                 nl.innerHTML = '';
                 for (let i = 0;i < data.length;i++) {
@@ -101,7 +101,6 @@
                     nl.appendChild(opt);
                 }
             }).catch(err => {
-                console.error(err)
             })
         }
         

@@ -79,7 +79,7 @@ def update_room(room_no, status):
     df['Room No.'] = df['Room No.'].astype(str)
     room_match = df[(df['Room No.']) == str(room_no)]
     if room_match.empty:
-        print(f"No room with number {room_no} found.")
+        print("No room with number" +  str(room_no) + " found.")
     df.loc[df['Room No.'] == str(room_no), 'Status'] = status
     df.to_csv(ROOMS_DB, index=False)
 
@@ -159,6 +159,11 @@ def get_amount_paid(reg_id):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
     return pd.Series(df.loc[df['register_id'] == reg_id, 'amount']).sum()
 
+def date_by_info():
+    df = pd.read_csv(REGISTER_DB, index_col=False)
+    df['date'] = df['checkin'].str.split('T').str[0]
+    return df['date'].value_counts().to_dict()
+
 def add_to_pending(data):
     db = json.load(open(PENDING_DB, 'r'))
     db.append(data)
@@ -179,7 +184,7 @@ def generate_report(date):
     header2 = docx.add_heading('Behind Bus Stand, Malkangiri, Odisha', level=3)
     header2.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     header2.style.font.size = Pt(24) # type: ignore
-    docx.add_paragraph(f'Date: {date}', ).paragraph_format.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    docx.add_paragraph('Date: ' + str(date), ).paragraph_format.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     table = docx.add_table(rows=len(final_df) + 1, cols=6)
     table.style = 'Table Grid'

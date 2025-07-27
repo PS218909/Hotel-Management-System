@@ -7,4 +7,20 @@
         </div>
         <button type="submit">Submit</button>
     </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+    <tbody>
+        {% for data in datas %}
+        <tr>
+            <td>{{data}}</td>
+            <td>{{datas[data]}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
 {% endblock %}

@@ -11,6 +11,5 @@ def test_api():
 def search_customer():
     name = request.args.get('name', '')
     phone = request.args.get('phone', '')
-    # res = search_query(CUSTOMER_DB, f'Name.str.startswith(\'{name}\') and Phone.str.contains(\'{phone}\')')
     res = search_customer_(name, phone)
     return res

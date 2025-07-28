@@ -1,6 +1,9 @@
-import os, requests, threading, json
+import os, requests, threading, json, time
 from datetime import datetime
-from zoneinfo import ZoneInfo
+try:
+    from zoneinfo import ZoneInfo
+except:
+    from backports.zoneinfo import ZoneInfo # type: ignore
 import pandas as pd
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -16,6 +19,16 @@ ROOMS_DB = os.path.join(DATASET, 'room.csv')
 if not os.path.exists(ROOMS_DB):
     with open(ROOMS_DB, 'w') as writer:
         writer.write('Room No.,Floor,Status')
+        for i in range(1, 17):
+            writer.write(str(i)+'0,1')
+        for i in range(101, 105):
+            writer.write(str(i)+'1,1')
+        for i in range(201, 209):
+            writer.write(str(i)+'2,1')
+        for i in range(301, 309):
+            writer.write(str(i)+'3,1')
+        for i in range(401, 409):
+            writer.write(str(i)+'4,1')
 
 CUSTOMER_DB = os.path.join(DATASET, 'customer.csv')
 if not os.path.exists(CUSTOMER_DB):
@@ -25,7 +38,7 @@ if not os.path.exists(CUSTOMER_DB):
 REGISTER_DB = os.path.join(DATASET, 'register.csv')
 if not os.path.exists(REGISTER_DB):
     with open(REGISTER_DB, 'w') as writer:
-        writer.write('id,customer_id,room,ac,checkin,checkout,rpd')
+        writer.write('id,customer_id,pov,room,ac,checkin,checkout,rpd')
 
 TRANSACTION_DB = os.path.join(DATASET, 'transaction.csv')
 if not os.path.exists(TRANSACTION_DB):
@@ -56,6 +69,7 @@ def get_room_details(room_no):
             'name': df2.loc[0, 'Name'],
             'phone': df2.loc[0, 'Phone'],
             'address': df2.loc[0, 'Address'].replace('||', '\n').replace('|', ','),
+            'pov': df.loc[0, 'pov'],
             'id_type': df2.loc[0, 'Id Type'],
             'id_detail': df2.loc[0, 'Id Detail'],
             'rpd': df.loc[0, 'rpd'],
@@ -85,7 +99,7 @@ def update_room(room_no, status):
 
 def add_data(file, data):
     df = pd.read_csv(file, index_col=False)
-    df.loc[len(df)] = data
+    df.loc[len(df)] = [str(i).upper() for i in data]
     df.to_csv(file, index=False)
 
 def update_data(file, query, data):
@@ -115,7 +129,7 @@ def search_query(file, query):
 def search_customer_(name='', phone='', id_type='', id_details=''):
     df = pd.read_csv(CUSTOMER_DB, index_col=False)
     df = df.astype(str)
-    df = df[(df['Name'].str.lower().str.startswith(name.lower())) & (df['Phone'].str.lower().str.startswith(phone.lower())) & (df['Id Type'].str.lower().str.contains(id_type.lower())) & (df['Id Detail'].str.lower().str.contains(id_details.lower()))]
+    df = df[(df['Name'].str.upper().str.startswith(name.upper())) & (df['Phone'].str.upper().str.startswith(phone.upper())) & (df['Id Type'].str.upper().str.contains(id_type.upper())) & (df['Id Detail'].str.upper().str.contains(id_details.upper()))]
     return df.to_dict(orient='records')
 
 def get_next_id(file, id_col = 'id'):
@@ -133,7 +147,7 @@ def total_balance(mode):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
     df['amount'] = df['amount'].astype(int)
     if mode != '':
-        return pd.Series(df.loc[(df['mode'].str.lower() == mode.lower()) & (df['register_id'] != -1), 'amount']).sum() - pd.Series(df.loc[(df['mode'].str.lower() == mode.lower()) & (df['register_id'] == -1), 'amount']).sum()
+        return pd.Series(df.loc[(df['mode'].str.upper() == mode.upper()) & (df['register_id'] != -1), 'amount']).sum() - pd.Series(df.loc[(df['mode'].str.upper() == mode.upper()) & (df['register_id'] == -1), 'amount']).sum()
     return pd.Series(df['amount']).sum()
 
 def payment_info():
@@ -192,22 +206,22 @@ def generate_report(date):
     table.rows[0].cells[1].text = 'Name & Address'
     table.rows[0].cells[2].text = 'Check In'
     table.rows[0].cells[3].text = 'Phone'
-    table.rows[0].cells[4].text = 'Id Type'
-    table.rows[0].cells[5].text = 'Id Detail'
+    table.rows[0].cells[4].text = 'Document'
+    table.rows[0].cells[5].text = 'Purpose Of Visit'
     for idx, row in final_df.iterrows():
         idx_int = int(idx) # type: ignore
         table.rows[idx_int + 1].cells[0].text = str(idx_int + 1) # pyright: ignore[reportOperatorIssue]
         table.rows[idx_int + 1].cells[1].text = row['Name'] + '\n' + row['Address']
         table.rows[idx_int + 1].cells[2].text = '-'.join(row['checkin'].split('T')[0].split('-')[::-1]) + '\n' + row['checkin'].split('T')[1]
         table.rows[idx_int + 1].cells[3].text = str(row['Phone'])
-        table.rows[idx_int + 1].cells[4].text = row['Id Type']
-        table.rows[idx_int + 1].cells[5].text = str(row['Id Detail'])
+        table.rows[idx_int + 1].cells[4].text = row['Id Type'] + '\n' + str(row['Id Detail'])
+        table.rows[idx_int + 1].cells[5].text = row['pov']
         table.rows[idx_int + 1].cells[0].width = Inches(0.5)
         table.rows[idx_int + 1].cells[1].width = Inches(3)
         table.rows[idx_int + 1].cells[2].width = Inches(2.5)
         table.rows[idx_int + 1].cells[3].width = Inches(0.5)
-        table.rows[idx_int + 1].cells[4].width = Inches(0.5)
-        table.rows[idx_int + 1].cells[5].width = Inches(0.5)
+        table.rows[idx_int + 1].cells[4].width = Inches(2)
+        table.rows[idx_int + 1].cells[5].width = Inches(2)
     docx.save(TEMP_DOCX)
 
 
@@ -215,16 +229,31 @@ def _discord_post(json):
     try:
         res = requests.post('https://discord.com/api/webhooks/1395845186579337346/dO0YR0eM1ApLnQqdUyDn1-W1tx2Rqsa89BO2leZD8uL3l1zOEYhNdwOCZ1eohkl6UD23', json=json, timeout=5)
         if res.status_code == 204:
+            print('Success')
             return 'Success'
         else:
+            print(res.status_code)
+            print(res.content)
             add_to_pending(json)
-            return 'Error'
     except requests.exceptions.Timeout as err:
         add_to_pending(json)
-        return 'No Internet Connection / Link not found'
+        print('Time out')
     except Exception as err:
         add_to_pending(json)
-        return 'error'
+        print(err)
+    print("Adding to JSON")
+    return 'error'
+
+def _upload_pending(messages):
+    json.dump([], open(PENDING_DB, 'w'))
+    print("Overwrite")
+    time.sleep(2)
+    for message in messages:
+        _discord_post(message)
+
+def upload_pending():
+    messages = json.load(open(PENDING_DB, 'r'))
+    threading.Thread(None, _upload_pending, '', (messages, )).start()
 
 def discord_post(json):
     threading.Thread(None, _discord_post, '', (json, )).start()

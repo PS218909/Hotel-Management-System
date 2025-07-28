@@ -9,6 +9,7 @@ CORS(app, resources={'/api/*': {'origins': '*'}})
 
 @app.route('/')
 def home_page():
+    upload_pending()
     floors = floor_wise()
     return render_template('index.html', floors = floors)
 
@@ -62,16 +63,16 @@ def go_to_room(room_no):
             register_id = get_next_id(REGISTER_DB)
         else:
             register_id = query3[0]['id']
-        data = [int(register_id), int(customer_id), int(room_no), str(request.form.get('ac')), str(request.form.get('checkin')), str(request.form.get('checkout')), int(request.form.get('rpd', '0'))]
+        data = [int(register_id), int(customer_id), str(request.form.get('pov')), int(room_no), str(request.form.get('ac')), str(request.form.get('checkin')), str(request.form.get('checkout', '')), int(request.form.get('rpd', '0'))]
         if query2[0]['Status'] == '1':
-            discord_post(json={'embeds': [{'description': 'Name: ' + str(request.form.get('name')) + '\nPhone No.: ' + str(request.form.get('phone')) + '\nAddress: ' + str(request.form.get('address')), 'title': 'Check In Room No.: ' + room_no}]})
+            discord_post(json={'embeds': [{'description': 'Name: ' + str(request.form.get('name')) + '\nPhone No.: ' + str(request.form.get('phone')) + '\nAddress: ' + str(request.form.get('address')) + '\nCheckin Time: ' + str(request.form.get('checkin')), 'title': 'Check In Room No.: ' + room_no}]})
             add_data(REGISTER_DB, data)
         else:
             update_data(REGISTER_DB, 'checkout == \'\' and room == ' + room_no, data)
         if request.form.get('checkout', '') == '':
             update_room(int(room_no), 2)
         else:
-            discord_post(json={'embeds': [{'description': 'Name: ' + str(request.form.get('name')) + '\nPhone No.: ' + str(request.form.get('phone')) + '\nAddress: ' + str(request.form.get('address')), 'title': 'Check Out Room No.: ' + room_no}]})
+            discord_post(json={'embeds': [{'description': 'Name: ' + str(request.form.get('name')) + '\nPhone No.: ' + str(request.form.get('phone')) + '\nAddress: ' + str(request.form.get('address')) + '\nCheckout Time: ' + str(request.form.get('checkout')), 'title': 'Check Out Room No.: ' + room_no}]})
             update_checkout(int(room_no), request.form.get('checkout'))
             update_room(room_no, 1)
         return redirect(url_for('home_page'))

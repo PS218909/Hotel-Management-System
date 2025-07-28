@@ -8,9 +8,12 @@
     <div class="selection">
         <button data-toggle="selectCustomer">Select Customer</button>
         <div class="modal" id="selectCustomer">
-            <div class="modal-head">Select Customer</div>
+            <div class="modal-head">
+                <h1>Select Customer</h1>
+                <span style="font-size: 52px;cursor: pointer;" id="close-modal">&times;</span>
+            </div>
             <div class="modal-body">
-                <span>(Press ESC to close.)</span>
+                <p>(Press ESC to close.)</p>
                 <input type="text" id="searchName" placeholder="Name" autocomplete="off">
                 <input type="number" id="searchPhone" placeholder="Phone No.">
                 <div class="options" id="options">
@@ -50,14 +53,18 @@
             <input type="text" name="id_detail" id="id_detail" value="{{ formData['id_detail'] }}" required>
         </div>
         <div class="input-div">
-            <input type="radio" name="ac" id="ac" value="ac" {{ 'checked' if formData['ac'] == 'ac' }}>
+            <label for="pov">Purpose Of Visit</label>
+            <input type="text" name="pov" id="pov" value="{{ formData['pov'] }}" required>
+        </div>
+        <div class="input-div">
+            <input type="radio" name="ac" id="ac" value="ac" {{ 'checked' if formData['ac'] == 'AC' }} required>
             <label for="ac">AC</label>
-            <input type="radio" name="ac" id="non_ac" value="non_ac" {{ 'checked' if formData['ac'] == 'non_ac' }}>
+            <input type="radio" name="ac" id="non_ac" value="non_ac" {{ 'checked' if formData['ac'] == 'NON_AC' }} required>
             <label for="non_ac">Non AC</label>
         </div>
         <div class="input-div">
             <label for="rpd">Room Rent Per Day:</label>
-            <input type="number" name="rpd" id="rpd" value="{{ formData['rpd'] }}">
+            <input type="number" name="rpd" id="rpd" value="{{ formData['rpd'] }}" required>
         </div>
         <div class="input-div">
             <label for="check_in">Check In</label>
@@ -83,7 +90,7 @@
             document.getElementById('selectCustomer').style.display = 'none';
         }
         function send_api_req() {
-            fetch('http://127.0.0.1:5000/api/search?name='+document.getElementById('searchName').value+'&phone='+document.getElementById('searchPhone').value).then((res) => {
+            fetch('http://127.0.0.1/api/search?name='+document.getElementById('searchName').value+'&phone='+document.getElementById('searchPhone').value).then((res) => {
                 if (!res.ok) {
                     console.log(res.status);
                 }
@@ -117,12 +124,16 @@
             const modalElement = document.getElementById(e.target.dataset.toggle);
             modalElement.style.display = 'block';
             const handleEscape = (e) => {
-                if (e.key === 'Escape') {
+                if (e.type === 'click') {
+                    modalElement.style.display = 'none';
+                    document.removeEventListener('keyup', handleEscape);
+                }
+                if (e.type === 'keyup' && e.key === 'Escape') {
                     modalElement.style.display = 'none';
                     document.removeEventListener('keyup', handleEscape);
                 }
             };
-
+            document.getElementById('close-modal').addEventListener('click', handleEscape)
             document.addEventListener('keyup', handleEscape);
         }
     </script>

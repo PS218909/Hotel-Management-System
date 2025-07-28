@@ -1,5 +1,5 @@
 :root {
-    --background: 47 100% 95%;
+    --background: 47 100% 85%;
     --foreground: 0 0% 0%;
 }
 
@@ -62,21 +62,27 @@ ul {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80vw;
-    height: 80vh;
+    width: 100vw;
+    height: 100vh;
     background-color: aliceblue;
     justify-content: center;
     align-items: center;
     padding-inline: 10px;
 }
 .modal .modal-head {
+    display: flex;
+    justify-content: space-between;
     font-size: 24px;
     margin-bottom: 7px;
 }
 
+.modal .modal-head h1 {
+    margin: 0px;
+}
+
 .option-selection {
+    margin: 10px 0px;
     transition: 0.4s;
-    padding-inline: 12px;
 }
 
 .option-selection:hover {

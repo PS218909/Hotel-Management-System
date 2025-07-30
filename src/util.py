@@ -1,5 +1,6 @@
 import os, requests, threading, json, time
 from datetime import datetime
+from config import *
 try:
     from zoneinfo import ZoneInfo
 except:
@@ -49,6 +50,7 @@ PENDING_DB = os.path.join(DATASET, 'pending.json')
 if not os.path.exists(PENDING_DB):
     with open(PENDING_DB, 'w') as writer:
         writer.write('[]')
+
 def get_rooms():
     df = pd.read_csv(ROOMS_DB, index_col=False)
     df.sort_values(by='Floor', axis=0, ascending=True, inplace=True, na_position='first')
@@ -64,6 +66,7 @@ def get_room_details(room_no):
         df2 = pd.read_csv(CUSTOMER_DB, index_col=False)
         df2 = df2[df2['id'] == customer_id]
         df2.reset_index(drop=True, inplace=True)
+        df3 = pd.read_csv(TRANSACTION_DB, index_col=False)
         return {
             'id': df.loc[0, 'id'],
             'name': df2.loc[0, 'Name'],
@@ -75,6 +78,7 @@ def get_room_details(room_no):
             'rpd': df.loc[0, 'rpd'],
             'check_in': df.loc[0, 'checkin'],
             'ac': df.loc[0, 'ac'],
+            'amt_paid': get_amount_paid(df.loc[0, 'id'])
         }
     else:
         return {}
@@ -183,9 +187,21 @@ def add_to_pending(data):
     db.append(data)
     json.dump(db, open(PENDING_DB, 'w'))
 
+def shift_rooms(from_, to):
+    df = pd.read_csv(ROOMS_DB, index_col=False)
+    df.loc[df['Room No.'] == from_, 'Status'] = 1
+    df.loc[df['Room No.'] == to, 'Status'] = 2
+    print(df)
+    df.to_csv(ROOMS_DB, index=False)
+
+    df2 = pd.read_csv(REGISTER_DB, index_col=False)
+    df2.loc[(df2['room'] == from_) & (df2['checkout'].isna()), 'room'] = to
+    df2.to_csv(REGISTER_DB, index=False)
+
 def generate_report(date):
     df = pd.read_csv(REGISTER_DB, index_col=False)
-    df = df[(df['checkin'].str.contains(date)) | (df['checkout'].isna())]
+    # df = df[(df['checkin'].str.contains(date)) | (df['checkout'].isna())]
+    df = df[(df['checkin'].str.contains(date))]
 
     df2 = pd.read_csv(CUSTOMER_DB, index_col=False)
     df2['Address'] = df2['Address'].str.replace('|', ',')
@@ -227,7 +243,7 @@ def generate_report(date):
 
 def _discord_post(json):
     try:
-        res = requests.post('https://discord.com/api/webhooks/1395845186579337346/dO0YR0eM1ApLnQqdUyDn1-W1tx2Rqsa89BO2leZD8uL3l1zOEYhNdwOCZ1eohkl6UD23', json=json, timeout=5)
+        res = requests.post(DISCORD_WEBHOOK_URL, json=json, timeout=5)
         if res.status_code == 204:
             print('Success')
             return 'Success'
@@ -259,4 +275,5 @@ def discord_post(json):
     threading.Thread(None, _discord_post, '', (json, )).start()
 
 if __name__ == '__main__':
-    pass
+    print(get_room_details(104))
+    shift_rooms(104, 204)

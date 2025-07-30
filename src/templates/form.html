@@ -4,6 +4,18 @@
     {% if 'check_in' in formData %}
         <h1>Time Passed: {{time_passed}}</h1>
         <h1>Amount Paid: {{amount_paid}}</h1>
+        <form action="/shift" method="post" style="margin-bottom: 3em;">
+            <h2>Shift Room</h2>
+            <input type="hidden" name="from_" id="from_" value="{{room_no}}">
+            <select name="to" id="to">
+                {% for room in available_rooms %}
+                    <option value="{{room['Room No.']}}">{{room['Room No.']}}</option>
+                {% endfor %}
+            </select>
+            <div class="submit-div">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
     {% endif %}
     <div class="selection">
         <button data-toggle="selectCustomer">Select Customer</button>

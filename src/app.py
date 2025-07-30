@@ -80,10 +80,17 @@ def go_to_room(room_no):
     checkin = formData.get('check_in', '')
     time_passed = None
     amount_paid = None
+    available_rooms = None
     if checkin != '':
         time_passed = (datetime.now(ZoneInfo('Asia/Kolkata')).replace(tzinfo=None) - datetime.strptime(checkin, "%Y-%m-%dT%H:%M"))
         time_passed = str(time_passed.days) + " Days " + str(time_passed.seconds // (60 * 60)) + " Hours"
         amount_paid = get_amount_paid(formData['id'])
-    return render_template('form.html', room_no = room_no, formData = formData, time_passed = time_passed, amount_paid = amount_paid)
+        available_rooms = search_query(ROOMS_DB, 'Status == \'1\'')
+    return render_template('form.html', room_no = room_no, formData = formData, time_passed = time_passed, amount_paid = amount_paid, available_rooms=available_rooms)
+
+@app.route('/shift', methods=['POST'])
+def shift_post():
+    shift_rooms(int(request.form.get('from_', '0')), int(request.form.get('to', '0')))
+    return redirect(url_for('home_page'))
 
 app.register_blueprint(api, url_prefix='/api')

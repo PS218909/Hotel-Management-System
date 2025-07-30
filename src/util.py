@@ -1,6 +1,6 @@
 import os, requests, threading, json, time
 from datetime import datetime
-from config import *
+from .config import *
 try:
     from zoneinfo import ZoneInfo
 except:

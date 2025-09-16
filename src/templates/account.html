@@ -43,7 +43,7 @@
                 <th>Room No.</th>
                 <th>Amount Paid</th>
                 <th>Mode Of Payment</th>
-                <!-- <th>Operations</th> -->
+                <th>Operations</th>
             </tr>
         </thead>
         <tbody>
@@ -54,11 +54,25 @@
                     <td>{{payment['room']}}</td>
                     <td>{{payment['amount']}}</td>
                     <td>{{payment['mode']}}</td>
-                    <!-- <td>
-                        <button>Edit</button>
-                    </td> -->
+                    <td>
+                        <button onclick="submitUpdateAmount(`{{payment['id']}}`, `{{payment['amount']}}`)">Edit</button>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <script>
+        function submitUpdateAmount(id, amount) {
+            let new_amount = prompt("Enter New Amount: ", amount);
+            if (new_amount !== null) {
+                fetch(`/update_payment?id=${id}&amount=${new_amount}`, {method: 'GET'}).then(res =>res.json()).then(data => {
+                    if (data.success) {
+                        window.location = '/account'
+                    }
+                })
+            } else {
+
+            }
+        }
+    </script>
 {% endblock %}

@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, redirect, url_for, request, render_template, send_file
+from flask import Flask, redirect, url_for, request, render_template, send_file, jsonify
 from flask_cors import CORS
 from .routes.api import api
 from .util import *
@@ -100,5 +100,10 @@ def go_to_register():
 def shift_post():
     shift_rooms(int(request.form.get('from_', '0')), int(request.form.get('to', '0')))
     return redirect(url_for('home_page'))
+
+@app.route('/update_payment', methods=['GET'])
+def edit_payment():
+    update_transaction(request.args.get('id'), request.args.get('amount'))
+    return jsonify({"success": True})
 
 app.register_blueprint(api, url_prefix='/api')

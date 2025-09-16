@@ -192,7 +192,9 @@ def payment_info():
 
     # Step 3: Select the desired columns
     result = final_df[['Name', 'room', 'amount', 'datetime', 'mode']]
+    result = result.copy()
     result['room'] = result['room'].astype(int)
+    result['id'] = result.index
     return result.to_dict(orient='records')
     
 def get_amount_paid(reg_id):
@@ -201,10 +203,19 @@ def get_amount_paid(reg_id):
         return pd.Series(df.loc[df['register_id'] == reg_id['id_y'], 'amount']).sum()
     return pd.Series(df.loc[df['register_id'] == reg_id, 'amount']).sum(), df.loc[df['register_id'] == reg_id].values
 
+def update_transaction(idx, amount):
+    df = pd.read_csv(TRANSACTION_DB, index_col=False)
+    df.loc[int(idx), 'amount'] = int(amount)
+    df['register_id'] = df['register_id'].astype(int)
+    df['amount'] = df['amount'].astype(int)
+    df.to_csv(TRANSACTION_DB, index=False)
+
 def date_by_info():
     df = pd.read_csv(REGISTER_DB, index_col=False)
     df['date'] = df['checkin'].str.split('T').str[0]
-    return df['date'].value_counts().to_dict()
+    counts = df['date'].value_counts()
+    counts = counts.sort_index(ascending=False)
+    return counts.to_dict()
 
 def add_to_pending(data):
     db = json.load(open(PENDING_DB, 'r'))

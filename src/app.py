@@ -32,6 +32,8 @@ def account_page():
             add_data(TRANSACTION_DB, ['-1', datetime.now().strftime('%Y-%m-%dT%H:%M'), str(request.form.get('amount')), str(request.form.get('mode')), str(request.form.get('description'))])
             return redirect(url_for('home_page'))
         query = search_query(REGISTER_DB, "checkout==\'\' and room==\'" + str(request.form.get('room')) + '\'')
+        print(str(request.form))
+        print(query, "Heii I am QUery Res")
         if len(query) == 0:
             return redirect(url_for('account_page'))
         register_id = query[0]['id']
@@ -81,12 +83,18 @@ def go_to_room(room_no):
     time_passed = None
     amount_paid = None
     available_rooms = None
+    payment_list = None
     if checkin != '':
         time_passed = (datetime.now(ZoneInfo('Asia/Kolkata')).replace(tzinfo=None) - datetime.strptime(checkin, "%Y-%m-%dT%H:%M"))
         time_passed = str(time_passed.days) + " Days " + str(time_passed.seconds // (60 * 60)) + " Hours"
-        amount_paid = get_amount_paid(formData['id'])
+        amount_paid, payment_list = get_amount_paid(formData['id'])
         available_rooms = search_query(ROOMS_DB, 'Status == \'1\'')
-    return render_template('form.html', room_no = room_no, formData = formData, time_passed = time_passed, amount_paid = amount_paid, available_rooms=available_rooms)
+    return render_template('form.html', room_no = room_no, formData = formData, time_passed = time_passed, amount_paid = amount_paid, available_rooms=available_rooms, payment_list=payment_list)
+
+@app.route('/register')
+def go_to_register():
+    page = int(request.args.get('page', 0))
+    return render_template('register.html', register_entries=get_info_register(page), page=page)
 
 @app.route('/shift', methods=['POST'])
 def shift_post():

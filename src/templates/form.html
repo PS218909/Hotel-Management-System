@@ -1,22 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% if 'check_in' in formData %}
-        <h1>Time Passed: {{time_passed}}</h1>
-        <h1>Amount Paid: {{amount_paid}}</h1>
-        <form action="/shift" method="post" style="margin-bottom: 3em;">
-            <h2>Shift Room</h2>
-            <input type="hidden" name="from_" id="from_" value="{{room_no}}">
-            <select name="to" id="to">
-                {% for room in available_rooms %}
-                    <option value="{{room['Room No.']}}">{{room['Room No.']}}</option>
-                {% endfor %}
-            </select>
-            <div class="submit-div">
-                <button type="submit">Submit</button>
-            </div>
-        </form>
-    {% endif %}
     <div class="selection">
         <button data-toggle="selectCustomer">Select Customer</button>
         <div class="modal" id="selectCustomer">
@@ -34,6 +18,17 @@
             </div>
         </div>
     </div>
+    {% if 'check_in' in formData %}
+        <h1>Time Passed: {{time_passed}}</h1>
+        <div class="hover-hidden">
+            <h1>Amount Paid: {{amount_paid}}</h1>
+            <div class="hidden">
+                {% for payment in payment_list %}
+                    <p>At {{'-'.join(payment[1].split('T')[0].split('-')[::-1])}} {{payment[1].split('T')[1]}} paid {{payment[2]}} through {{payment[3]}} to {{payment[4]}}</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
     <form action="/room/{{room_no}}" method="post" autocomplete="off">
         <div class="input-div">
             <label for="name">Name</label>
@@ -92,6 +87,45 @@
             <button type="submit">Submit</button>
         </div>
     </form>
+    {% if 'check_in' in formData %}
+        <form action="/account" method="post">
+            <h2>Payment</h2>
+            <div class="input-div">
+                <label for="room">Room No.:</label>
+                <input type="text" name="room" id="room" value="{{room_no}}" readonly />
+            </div>
+            <div class="input-div">
+                <label for="amount">Amount: </label>
+                <input type="number" name="amount" id="amount" required>
+            </div>
+            <div class="input-div">
+                <label for="mode">Mode: </label>
+                <input type="text" name="mode" id="mode" list="modes" required>
+                <datalist id="modes">
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </datalist>
+            </div>
+            <div class="input-div">
+                <label for="description">Description: </label>
+                <input type="text" name="description" id="description" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <form action="/shift" method="post" style="margin-bottom: 3em;">
+            <h2>Shift Room</h2>
+            <input type="hidden" name="from_" id="from_" value="{{room_no}}">
+            <select name="to" id="to">
+                {% for room in available_rooms %}
+                    <option value="{{room['Room No.']}}">{{room['Room No.']}}</option>
+                {% endfor %}
+            </select>
+            <div class="submit-div">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    {% endif %}
     <script>
         function setData(data) {
             document.getElementById('name').value = data.Name;

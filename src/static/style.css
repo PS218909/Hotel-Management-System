@@ -4,7 +4,7 @@
 }
 
 body, html {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
 }
@@ -20,6 +20,11 @@ ul {
     & li {
         width: 80px;
     }
+}
+
+.container {
+    width: 80%;
+    margin: auto;
 }
 
 .row {
@@ -92,8 +97,9 @@ ul {
 
 form {
     width: 80%;
-    margin: auto;
-    border: 1px solid hsl(var(--background) h s calc(l - 20));
+    margin: 30px auto;
+    border: 1px solid black;
+    padding: 20px;
 }
 
 form .input-div {
@@ -130,8 +136,38 @@ table {
     margin: auto;
     text-align: center;
     text-wrap: wrap;
+    border-collapse: collapse;
 }
 
 th {
     padding-inline: 40px;
+}
+
+thead *, tbody * {
+    border: 1px solid black;
+}
+
+.hover-hidden {
+    display: block;
+    position: relative;
+}
+
+.hover-hidden .hidden {
+    background-color: hsl(var(--background));
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    display: none;
+}
+
+.hover-hidden:hover .hidden {
+    display: block;
+}
+
+.hover-hidden .hidden p{
+    transition: 0.8s;
+}
+.hover-hidden .hidden p:hover {
+    transform: scale(1.03);
 }

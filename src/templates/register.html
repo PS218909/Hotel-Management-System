@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <!-- <th>Sl No.</th> -->
+                <th>Name</th>
+                <th>Phone No.</th>
+                <th>Room No.</th>
+                <th>Checkin <br> Checkout</th>
+                <th>Room Rent Per Day</th>
+                <th>Time Passed</th>
+                <th>Amount Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in register_entries %}
+                <tr>
+                    <!-- <td>{{data['id_x']}}</td> -->
+                    <td>{{data['Name']}}</td>
+                    <td>{{data['Phone']}}</td>
+                    <td>{{data['room']}}</td>
+                    <td>{{(data['checkin'])}} <br> {{data['checkout'] if data['checkout'] != '' else 'Not checkout'}}</td>
+                    <td>{{data['rpd']}}</td>
+                    <td>{{data['time_passed']}}</td>
+                    <td>{{data['amt_paid']}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="display: flex; justify-content: space-evenly;">
+        {% if page > 0 %}
+        <a href="/register?page={{page-1}}">Perv</a>
+        {% endif %}
+        <a href="/register?page={{page+1}}">Next</a>
+    </div>
+{% endblock %}

@@ -9,5 +9,6 @@ def run_flask_app():
 def run_discord_bot():
     client.run(DISCORD_BOT_TOKEN)
 
-Thread(None, run_flask_app, '').start()
-run_discord_bot()
+# Thread(None, run_flask_app, '').start()
+# run_discord_bot()
+run_flask_app()

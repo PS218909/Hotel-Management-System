@@ -30,7 +30,7 @@
             </datalist>
         </div>
         <div class="input-div">
-            <label for="Description">Description: </label>
+            <label for="description">Description: </label>
             <input type="text" name="description" id="description" required>
         </div>
         <button type="submit">Submit</button>
@@ -43,16 +43,20 @@
                 <th>Room No.</th>
                 <th>Amount Paid</th>
                 <th>Mode Of Payment</th>
+                <!-- <th>Operations</th> -->
             </tr>
         </thead>
         <tbody>
             {% for payment in payments %}
                 <tr>
-                    <td>{{payment['datetime'].replace('T', ' ')}}</td>
+                    <td> {{'-'.join(payment['datetime'].split('T')[0].split('-')[::-1])}} {{payment['datetime'].split('T')[1]}}</td>
                     <td>{{payment['Name']}}</td>
                     <td>{{payment['room']}}</td>
                     <td>{{payment['amount']}}</td>
                     <td>{{payment['mode']}}</td>
+                    <!-- <td>
+                        <button>Edit</button>
+                    </td> -->
                 </tr>
             {% endfor %}
         </tbody>

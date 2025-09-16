@@ -147,6 +147,28 @@ def get_data(file):
     df = pd.read_csv(file, index_col=False)
     return df.to_dict(orient='records')
 
+def get_info_register(page=0, count=50):
+    df = pd.read_csv(REGISTER_DB, index_col=False)
+    df['checkout'] = df['checkout'].fillna('')
+    df2 = pd.read_csv(CUSTOMER_DB, index_col=False)
+
+    register = df.merge(df2, left_on='customer_id', right_on='id')
+    register['amt_paid'] = register.apply(get_amount_paid, axis=1)
+    register['time_passed'] = register.apply(calc_time_passed, axis=1)
+    register['checkin'] = register['checkin'].str.split('T').str[0] + ' ' + register['checkin'].str.split('T').str[1]
+    register['checkout'] = register['checkout'].str.split('T').str[0] + ' ' + register['checkout'].str.split('T').str[1]
+    register['checkout'] = register['checkout'].fillna('')
+    register.sort_values(by='id_x', inplace=True, ascending=False)
+    return register.iloc[(page * count):((page + 1) * count)].to_dict(orient='records')
+
+def calc_time_passed(row):
+    if row['checkout'] == '':
+        row['checkout'] = datetime.now(ZoneInfo('Asia/Kolkata')).replace(tzinfo=None)
+    else:
+        row['checkout'] = datetime.strptime(row['checkout'], "%Y-%m-%dT%H:%M")
+    time_passed = row['checkout'] - datetime.strptime(row['checkin'], "%Y-%m-%dT%H:%M")
+    return str(time_passed.days) + " Days " + str(time_passed.seconds // (60 * 60)) + " Hours"
+
 def total_balance(mode):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
     df['amount'] = df['amount'].astype(int)
@@ -175,7 +197,9 @@ def payment_info():
     
 def get_amount_paid(reg_id):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
-    return pd.Series(df.loc[df['register_id'] == reg_id, 'amount']).sum()
+    if isinstance(reg_id, pd.Series):
+        return pd.Series(df.loc[df['register_id'] == reg_id['id_y'], 'amount']).sum()
+    return pd.Series(df.loc[df['register_id'] == reg_id, 'amount']).sum(), df.loc[df['register_id'] == reg_id].values
 
 def date_by_info():
     df = pd.read_csv(REGISTER_DB, index_col=False)
@@ -240,7 +264,6 @@ def generate_report(date):
         table.rows[idx_int + 1].cells[5].width = Inches(2)
     docx.save(TEMP_DOCX)
 
-
 def _discord_post(json):
     try:
         res = requests.post(DISCORD_WEBHOOK_URL, json=json, timeout=5)
@@ -275,5 +298,4 @@ def discord_post(json):
     threading.Thread(None, _discord_post, '', (json, )).start()
 
 if __name__ == '__main__':
-    print(get_room_details(104))
-    shift_rooms(104, 204)
+    print(get_info_register())

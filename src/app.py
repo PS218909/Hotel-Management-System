@@ -91,7 +91,8 @@ def go_to_room(room_no):
 @app.route('/register')
 def go_to_register():
     page = int(request.args.get('page', 0))
-    return render_template('register.html', register_entries=get_info_register(page), page=page)
+    count = int(request.args.get('count', 100))
+    return render_template('register.html', register_entries=get_info_register(page, count), page=page)
 
 @app.route('/shift', methods=['POST'])
 def shift_post():

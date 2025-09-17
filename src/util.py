@@ -200,7 +200,7 @@ def payment_info():
 def get_amount_paid(reg_id):
     df = pd.read_csv(TRANSACTION_DB, index_col=False)
     if isinstance(reg_id, pd.Series):
-        return pd.Series(df.loc[df['register_id'] == reg_id['id_y'], 'amount']).sum()
+        return pd.Series(df.loc[df['register_id'] == reg_id['id_x'], 'amount']).sum()
     return pd.Series(df.loc[df['register_id'] == reg_id, 'amount']).sum(), df.loc[df['register_id'] == reg_id].values
 
 def update_transaction(idx, amount):

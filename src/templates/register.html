@@ -3,7 +3,7 @@
     <table>
         <thead>
             <tr>
-                <!-- <th>Sl No.</th> -->
+                <th>Sl No.</th>
                 <th>Name</th>
                 <th>Phone No.</th>
                 <th>Room No.</th>
@@ -16,7 +16,7 @@
         <tbody>
             {% for data in register_entries %}
                 <tr>
-                    <!-- <td>{{data['id_x']}}</td> -->
+                    <td>{{data['id_x']}}</td>
                     <td>{{data['Name']}}</td>
                     <td>{{data['Phone']}}</td>
                     <td>{{data['room']}}</td>
@@ -28,7 +28,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <div style="display: flex; justify-content: space-evenly;">
+    <div style="display: flex;gap: 30px; justify-content: space-evenly;">
         {% if page > 0 %}
         <a href="/register?page={{page-1}}">Perv</a>
         {% endif %}

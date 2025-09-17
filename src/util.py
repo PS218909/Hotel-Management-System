@@ -226,7 +226,6 @@ def shift_rooms(from_, to):
     df = pd.read_csv(ROOMS_DB, index_col=False)
     df.loc[df['Room No.'] == from_, 'Status'] = 1
     df.loc[df['Room No.'] == to, 'Status'] = 2
-    print(df)
     df.to_csv(ROOMS_DB, index=False)
 
     df2 = pd.read_csv(REGISTER_DB, index_col=False)
@@ -279,24 +278,17 @@ def _discord_post(json):
     try:
         res = requests.post(DISCORD_WEBHOOK_URL, json=json, timeout=5)
         if res.status_code == 204:
-            print('Success')
             return 'Success'
         else:
-            print(res.status_code)
-            print(res.content)
             add_to_pending(json)
     except requests.exceptions.Timeout as err:
         add_to_pending(json)
-        print('Time out')
     except Exception as err:
         add_to_pending(json)
-        print(err)
-    print("Adding to JSON")
     return 'error'
 
 def _upload_pending(messages):
     json.dump([], open(PENDING_DB, 'w'))
-    print("Overwrite")
     time.sleep(2)
     for message in messages:
         _discord_post(message)
@@ -309,4 +301,4 @@ def discord_post(json):
     threading.Thread(None, _discord_post, '', (json, )).start()
 
 if __name__ == '__main__':
-    print(get_info_register())
+    pass

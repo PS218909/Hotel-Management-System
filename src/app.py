@@ -22,7 +22,6 @@ def report_page():
     if request.method == 'POST':
         generate_report(request.form.get('date'))
         return send_file(TEMP_DOCX, download_name=str(request.form.get('date', '1-Jan-2025')) + '.docx')
-    print(date_by_info())
     return render_template('report.html', datas = date_by_info())
 
 @app.route('/account', methods=['POST', 'GET'])
@@ -32,8 +31,6 @@ def account_page():
             add_data(TRANSACTION_DB, ['-1', datetime.now().strftime('%Y-%m-%dT%H:%M'), str(request.form.get('amount')), str(request.form.get('mode')), str(request.form.get('description'))])
             return redirect(url_for('home_page'))
         query = search_query(REGISTER_DB, "checkout==\'\' and room==\'" + str(request.form.get('room')) + '\'')
-        print(str(request.form))
-        print(query, "Heii I am QUery Res")
         if len(query) == 0:
             return redirect(url_for('account_page'))
         register_id = query[0]['id']

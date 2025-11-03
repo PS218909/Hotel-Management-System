@@ -1,10 +1,24 @@
 {% extends 'base.html' %}
+
 {% block content %}
-    {% for floor in floors %}
-        <div class="row">
-            {% for room in floor %}
-                <div class="card {{ 'booked' if room[2] == 1 else 'empty' }}" onclick="window.location='room/{{ room[0] }}'">{{room[0]}}</div>
+    {% for floor in stats %}
+        <div class="mb-2">
+            {{floor}}
+        </div>
+        <div class="d-flex flex-wrap align-content-center">
+            {% for room in stats[floor] %}
+                <div role="button" class="card shadow text-center m-2 shadow border {{ 'border-success text-success' if stats[floor][room]['status'] == 1 else 'border-danger text-danger' }}" style="width: 7rem;height: 7rem" onclick="window.location = 'room/{{room}}'">
+                    <div class="card-body">
+                        <div class="card-title">{{room}}</div>
+                        {% if stats[floor][room]['status'] == 2 %}
+                            {{stats[floor][room]['details']['data']['time_passed']}}
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
         </div>
     {% endfor %}
+    <script>
+        $(".nav-link")[0].classList.toggle('active', true);
+    </script>
 {% endblock %}

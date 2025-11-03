@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Statics & Analysis</h1>
+    <form action="/analysis" method="post">
+        <div class="row mb-3">
+            <div class="col-6">
+                <div class="input-group">
+                    <label for="start"><span class="input-group-text">Start Time</span></label>
+                    <input type="datetime-local" name="start" id="start" class="form-control" value="{{start_time}}">
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="input-group">
+                    <label for="end"><span class="input-group-text">End Time</span></label>
+                    <input type="datetime-local" name="end" id="end" class="form-control" value="{{end_time}}">
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary form-control">Submit</button>
+        </div>
+    </form>
+    <div class="row mb-3">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🕛 Served</h5>
+                    <h4><b>{{stay_duration}} Hrs</b></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔁 Repeat Customers</h5>
+                    <h4><b>{{customer_retention}}</b></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🆕 New Customers</h5>
+                    <h4><b>{{new_customer}}</b></h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Revenue Generated</h5>
+                    <h4><b>{{revenue_generated}}</b></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-6">
+            <h4>Revenue Based on Purpose</h4>
+            <table class="table table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Purpose</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purpose, amount in revenue_based_on_purpose.items() %}
+                    <tr>
+                        <td>{{purpose}}</td>
+                        <td>{{amount}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <h4>Payment Mode Breakdown</h4>
+            <table class="table table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Mode</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mode, amount in payment_mode_breakdown.items() %}
+                    <tr>
+                        <td>{{mode}}</td>
+                        <td>{{amount}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        {% endblock %}

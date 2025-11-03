@@ -1,37 +1,138 @@
 {% extends 'base.html' %}
 {% block content %}
-    <table>
-        <thead>
-            <tr>
-                <th>Sl No.</th>
-                <th>Name</th>
-                <th>Phone No.</th>
-                <th>Room No.</th>
-                <th>Checkin <br> Checkout</th>
-                <th>Room Rent Per Day</th>
-                <th>Time Passed</th>
-                <th>Amount Paid</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for data in register_entries %}
-                <tr>
-                    <td>{{data['id_x']}}</td>
-                    <td>{{data['Name']}}</td>
-                    <td>{{data['Phone']}}</td>
-                    <td>{{data['room']}}</td>
-                    <td>{{(data['checkin'])}} <br> {{data['checkout'] if data['checkout'] != '' else 'Not checkout'}}</td>
-                    <td>{{data['rpd']}}</td>
-                    <td>{{data['time_passed']}}</td>
-                    <td>{{data['amt_paid']}}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <div style="display: flex;gap: 30px; justify-content: space-evenly;">
-        {% if page > 0 %}
-        <a href="/register?page={{page-1}}">Perv</a>
-        {% endif %}
-        <a href="/register?page={{page+1}}">Next</a>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search" />
+            </div>
+            <table class="table table-bordered table-hover mb-3" id="registerTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Sl. No. & Room No.</th>
+                        <th scope="col">Name & Address & Phone</th>
+                        <th scope="col">ID Proof</th>
+                        <th scope="col">Check In & Check out</th>
+                        <th scope="col">Room Rent Per Day</th>
+                        <th scope="col">Time Passed</th>
+                        <th scope="col">Amount Paid</th>
+                        <th scope="col">Remaining Balance</th>
+                        <th scope="col" width="20%">Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in register %}
+                        <tr>
+                            <td scope="row">{{record['id_x']}} <br />{{record['rno']}}</td>
+                            <td>{{record['n']}} <br />{{record['a']}} <br>{{record['p']}}</td>
+                            <td>{{record['it']}} <br />{{record['ip']}}</td>
+                            <td>{{record['cin']}} <br />{{record['cout']}}</td>
+                            <td>{{record['rpd']}}</td>
+                            <td>{{record['time_passed']}}</td>
+                            <td>{{record['amount_paid']}}</td>
+                            <td>{{record['remaining_balance']}}</td>
+                            <td>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal{{record['id_x']}}">Add Payment</button>
+                                <div class="modal modal-xl fade" id="addPaymentModal{{record['id_x']}}" tabindex="-1" role="dialog" aria-label="addPaymentLabel{{record['id_x']}}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="addPaymentLabel{{record['id_x']}}">💰 Add Payment</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p><b>Name: </b>{{record['n']}}</p>
+                                                <p><b>Room No.: </b>{{record['rno']}}</p>
+                                                <form action="/transaction/id" method="post">
+                                                    <input type="hidden" name="id" value="{{record['id_x']}}">
+                                                    <div class="input-group mb-3">
+                                                        <label for="amount"><span class="input-group-text">Amount</span></label>
+                                                        <input type="number" class="form-control" name="amount" id="amount" required>
+                                                    </div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="mode"><span class="input-group-text">Mode</span></label>
+                                                        <input type="text" class="form-control" name="mode" id="mode" required>
+                                                    </div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="description"><span class="input-group-text">Description</span></label>
+                                                        <input type="text" class="form-control" name="decsription" id="description" required>
+                                                    </div>
+                                                    <div class="input-group mb-3">
+                                                        <button type="submit" class="btn btn-primary form-control">Submit</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#gstDetail{{record['id_x']}}">GST Detail</button>
+                                <div class="modal modal-l fade" id="gstDetail{{record['id_x']}}" tabindex="-1" role="dialog" aria-label="gstDetailLabel{{record['id_x']}}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="gstDetailLabel{{record['id_x']}}">GST Detail</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="/update/gst_detail" method="post">
+                                                    <input type="hidden" name="id" value="{{record['id_x']}}">
+                                                    <div class="row mb-3">
+                                                        <div class="col">
+                                                            <div class="input-group">
+                                                                <span class="input-group-text">Bill No.</span>
+                                                                <input type="text" class="form-control" name="gst_bill" id="gst_bill" value="{{record['gb']}}" required/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col">
+                                                            <button type="submit" class="btn btn-primary form-control" data-bs-dismiss="modal">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-success" onclick="go_prev()">Previous</button>
+                <select id="count" class="form-select mx-5">
+                    <optgroup>
+                        <option value="{{count}}">{{count}}</option>
+                    </optgroup>
+                    <optgroup>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </optgroup>
+                </select>
+                <button class="btn btn-success" onclick="go_next()">Next</button>
+            </div>
+        </div>
     </div>
+    <script>
+        const url = window.location.search;
+        const urlParams = new URLSearchParams(url);
+        const page = urlParams.get('page') || 1;
+        function go_prev() {
+            if (page > 1) {
+                window.location = `/register?page=${Number(page)-1}&count=${$('#count').val()}`;
+            } 
+        }
+        function go_next() {
+            window.location = `/register?page=${Number(page)+1}&count=${$('#count').val()}`;
+        }
+        $(document).ready(function(){
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#registerTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().replace(/\s+/g, '').toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+        $(".nav-link")[2].classList.toggle('active', true);
+    </script>
 {% endblock %}

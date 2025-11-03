@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="m-2">
+        <input type="text" id="searchInput" placeholder="Search" class="form-control">
+        <table id="gstTable" class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>GST Bill No.</th>
+                    <th>Amount Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in register %}
+                    <tr>
+                        <td>{{record['t']}}</td>
+                        <td><span style="display: none;">gno</span>{{record['gb']}}</td>
+                        <td>Rs. {{record['a']}} through {{record['m']}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#gstTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().replace(/\s+/g, '').toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+{% endblock %}

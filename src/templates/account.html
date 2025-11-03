@@ -1,78 +1,181 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div style="margin: auto;width: 80%;">
-    <h1>Cash: {{total_cash_available or 0}}</h1>
-</div>
-    <form action="/account" method="post">
-        <div class="input-div">
-            <label for="room">Room No.: </label>
-            <select name="room" id="room">
-                <option value="Credit">Credit</option>
-                {% for room in rooms %}
-                    {% if room['Status'] == 2 %}
-                        <option value="{{room['Room No.']}}">{{room['Room No.']}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="card-title"><h5>Add New Payment</h5></div>
+            <form action="/transaction" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Room No.</span>
+                    <select name="roomno" id="roomno" class="form-select">
+                        <option value="-1">Credit</option>
+                        {% for room in rooms %}
+                            <option value="{{room['r']}}">{{room['r']}}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="input-group-text ms-3">Amount</span>
+                    <input type="number" name="amount" id="amount" class="form-control" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Mode</span>
+                    <input type="text" name="mode" id="mode" class="form-control" list="mode_options" required />
+                    <datalist id="mode_options">
+                        <option value="Cash">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </datalist>
+                    <span class="input-group-text ms-3">Description</span>
+                    <input type="text" name="description" id="description" class="form-control" required>
+                </div>
+                <div class="input-group">
+                    <button type="submit" class="btn btn-primary form-control">Submit</button>
+                </div>
+            </form>
         </div>
-        <div class="input-div">
-            <label for="amount">Amount: </label>
-            <input type="number" name="amount" id="amount" required>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col card">
+                    <div class="card-body">
+                        <h5 class="card-title">💰 Overall Income</h5>
+                        <p>{{total_amount}}</p>
+                    </div>
+                </div>
+                <div class="col card ms-2">
+                    <div class="card-body">
+                        <h5 class="card-title">💵 Cash</h5>
+                        <p>{{cash}}</p>
+                    </div>
+                </div>
+                <div class="col card ms-2">
+                    <div class="card-body">
+                        <h5 class="card-title">📱 UPI</h5>
+                        <p>{{upi}}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="input-div">
-            <label for="mode">Mode: </label>
-            <input type="text" name="mode" id="mode" list="modes" required>
-            <datalist id="modes">
-                <option value="Cash">Cash</option>
-                <option value="UPI">UPI</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-            </datalist>
+    </div>
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search">
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="card-title">
+                <h5>Payment History</h5>
+            </div>
+            <table class="table table-striped table-hover table-bordered mb-4" id="transactionTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Date & Time</th>
+                        <th scope="col">Room No.</th>
+                        <th scope="col">Party</th>
+                        <th scope="col">Mode</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td scope="row">{{payment['t']}}</td> <!-- class="{{'text-danger' if (payment['n'] == 'Credit' or payment['a_x'] < 0) else 'text-success'}}"-->
+                        <td>{{payment['rno']}}</td>
+                        <td>{{payment['n']}}</td>
+                        <td>{{payment['m']}}</td>
+                        <td>{{payment['a_x']}} </td>
+                        <td>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPaymentModal{{payment['id_x']}}">Edit</button>
+                            <div class="modal modal-lg fade" tabindex="-1" id="editPaymentModal{{payment['id_x']}}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Edit Payment by {{payment['n']}} (Room No.: {{payment['rno']}})</h5>
+                                            <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="/transaction/update" method="post">
+                                                <input type="hidden" name="id" id="id" value="{{payment['id_x']}}" />
+                                                <input type="hidden" name="time" id="time" value="{{payment['t']}}" />
+                                                <div class="input-group mb-2">
+                                                    <span class="input-group-text">Room No.</span>
+                                                    <input type="text" name="roomno" id="roomno" class="form-control" value="{{payment['rno']}}" readonly disabled>
+                                                    <span class="input-group-text ms-2">Amount</span>
+                                                    <input type="text" name="amount" id="amount" class="form-control" value="{{payment['a_x']}}">
+                                                </div>
+                                                <div class="input-group mb-2">
+                                                    <span class="input-group-text">Mode</span>
+                                                    <input type="text" name="mode" id="mode" class="form-control ms-2" value="{{payment['m']}}">
+                                                    <span class="input-group-text">Description</span>
+                                                    <input type="text" name="description" id="description" class="form-control" value="{{payment['d']}}" required>
+                                                </div>
+                                                <div class="input-group">
+                                                    <button type="submit" class="btn btn-primary form-control">Submit</button>
+                                                    <button type="button" class="btn btn-secondary form-control ms-2" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePaymentModal{{payment['id_x']}}">Delete</button>
+                            <div class="modal modal-lg fade" tabindex="-1" id="deletePaymentModal{{payment['id_x']}}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Payment</h5>
+                                            <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="/transaction/delete" method="post">
+                                                <div class="input-group">
+                                                    <p>Are you sure you want to delete?</p>
+                                                    <input type="hidden" name="id" value="{{payment['id_x']}}">
+                                                    <input type="hidden" name="time" value="{{payment['t']}}">
+                                                </div>
+                                                <div class="input-group">
+                                                    <button type="submit" class="btn btn-success form-control">Comfirm</button>
+                                                    <button type="button" class="btn btn-secondary form-control ms-1" data-bs-dismiss="modal">Cancel</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-success" onclick="go_prev()">Previous</button>
+                <select id="count" class="form-select mx-5">
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <button class="btn btn-success" onclick="go_next()">Next</button>
+            </div>
         </div>
-        <div class="input-div">
-            <label for="description">Description: </label>
-            <input type="text" name="description" id="description" required>
-        </div>
-        <button type="submit">Submit</button>
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>Date & Time</th>
-                <th>Name</th>
-                <th>Room No.</th>
-                <th>Amount Paid</th>
-                <th>Mode Of Payment</th>
-                <th>Operations</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for payment in payments %}
-                <tr>
-                    <td> {{'-'.join(payment['datetime'].split('T')[0].split('-')[::-1])}} {{payment['datetime'].split('T')[1]}}</td>
-                    <td>{{payment['Name']}}</td>
-                    <td>{{payment['room']}}</td>
-                    <td>{{payment['amount']}}</td>
-                    <td>{{payment['mode']}}</td>
-                    <td>
-                        <button onclick="submitUpdateAmount(`{{payment['id']}}`, `{{payment['amount']}}`)">Edit</button>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    </div>
     <script>
-        function submitUpdateAmount(id, amount) {
-            let new_amount = prompt("Enter New Amount: ", amount);
-            if (new_amount !== null) {
-                fetch(`/update_payment?id=${id}&amount=${new_amount}`, {method: 'GET'}).then(res =>res.json()).then(data => {
-                    if (data.success) {
-                        window.location = '/account'
-                    }
-                })
-            } else {
-
-            }
+        const url = window.location.search;
+        const urlParams = new URLSearchParams(url);
+        const page = urlParams.get('page') || 1;
+        function go_prev() {
+            if (page > 1) {
+                window.location = `/account?page=${Number(page)-1}&count=${$('#count').val()}`;
+            } 
         }
+        function go_next() {
+            window.location = `/account?page=${Number(page)+1}&count=${$('#count').val()}`;
+        }
+        $(document).ready(function(){
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#transactionTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().replace(/\s+/g, '').toLowerCase().indexOf(value.replace(/\s+/g, '')) > -1)
+                });
+            });
+        });
+        $(".nav-link")[1].classList.toggle('active', true);
     </script>
 {% endblock %}

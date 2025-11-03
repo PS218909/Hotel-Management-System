@@ -11,6 +11,7 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 - **Transaction Management**
 - **Report Generation**
 - **Discord Webhook Alerts**
+- **Analysis**
 
 ---
 
@@ -30,7 +31,6 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 ### How to Run
 
 Clone the repository:
-
 ```bash
 git clone https://github.com/PS218909/Hotel-Management-System
 ```
@@ -42,11 +42,22 @@ Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+Update src/congif.py (To utilize all the function): 
+```python
+HOTEL_NAME = "Hotel Name"
+HOTEL_ADDRESS = "Hotel Address"
+....
+TESTING_CHANNEL_ID = 0 
+UPDATE_CHANNEL_ID = 0  
+DISCORD_BOT_TOKEN = "BOT TOKEN"
+
+```
 Start the application:
 ```bash
 python main.py
 ```
 ---
+
 ## 🚀 Future Improvements
 -  Replace CSV with SQLite
 -  Add more operations

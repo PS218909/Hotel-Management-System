@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="modal modal-xl fade" id="selectCustomerModal" tabindex="-1" role="dialog" aria-labelledby="selectCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectCustomerModalLabel">Select Customer 🧑</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text">Name</span>
+                        <input type="text" id="search_name" class="form-control" />
+                        <span class="input-group-text ms-2">Phone</span>
+                        <input type="number" id="search_phone" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Phone</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Operation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="select_customer_tbody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h2 class="ms-3">🛌Room No.: {{ roomno }}</h2>
+    {% if status == 2 %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5>💰Payment Information</h5>
+                    </div>
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date & Time</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Mode</th>
+                                <th scope="col">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                                <tr>
+                                    <td scope="row">{{payment['t']}}</td>
+                                    <td>{{payment['a_x']}}</td>
+                                    <td>{{payment['m']}}</td>
+                                    <td>{{payment['d']}}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td scope="row"><strong>Total</strong></td>
+                                <td><strong>{{total_payment}}</strong></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="container-fluid row">
+        <div class="{{'col-lg-8' if status == 2 else 'col-lg-12' }}">
+            <div class="card">
+                <div class="card-body">
+                    <form action="/room/{{ roomno }}" method="post" autocomplete="off">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="card-title">Customer Details</div>
+                            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#selectCustomerModal">Select Customer</button>
+                            <div class="input-group mb-3">
+                            <label for="name"><span class="input-group-text">Name</span></label>
+                            <input type="text" name="name" id="name" class="form-control" value="{{name}}" required />
+                            <label for="phone"><span class="input-group-text ms-4">Phone</span></label>
+                            <input type="number" name="phone" id="phone" class="form-control" value="{{phone}}" required />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Address</span>
+                            <input type="text" name="address" id="address" class="form-control" value="{{address}}" required />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">ID Type</span>
+                            <input type="text" name="id_type" id="id_type" class="form-control" value="{{id_type}}" required />
+                            <datalist id="id_type_list">
+                                <option value="AADHAR">AADHAR</option>
+                                <option value="PASSPORT">PASSPORT</option>
+                                <option value="DRIVING LICENSE">LICENSE</option>
+                            </datalist>
+                            <span class="input-group-text ms-3">ID Detail</span>
+                            <input type="text" name="id_detail" id="id_detail" class="form-control" value="{{id_detail}}" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="card-title">Room Detail</div>
+                        <div class="input-group mb-3">
+                            <label for="ac">
+                                <span class="input-group-text">
+                                    <input type="radio" class="form-check-input me-2" name="ac" id="ac" value="ac" {{"checked" if ac == "ac" }} /> AC
+                                </span>
+                            </label>
+                            <label for="non_ac">
+                                <span class="input-group-text ms-4">
+                                    <input type="radio" class="form-check-input me-2" name="ac" id="non_ac" value="non-ac" {{ "checked" if ac == "non-ac" }} /> Non AC
+                                </span>
+                            </label>
+                                <span class="input-group-text ms-4">Purpose of Visit</span>
+                            <input type="text" name="pov" id="pov" class="form-control" value="{{ pov }}" required>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Room Rent Per Day</span>
+                            <input type="number" name="rpd" id="rpd" class="form-control" value="{{ rpd }}" />
+                            <span class=" ms-2 input-group-text">Check In</span>
+                            <input type="datetime-local" name="checkin" id="checkin" class="form-control" value="{{ checkin }}" required>
+                        </div>
+                        {% if status == 2 %}
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Check Out</span>
+                            <input type="datetime-local" name="checkout" id="checkout" class="form-control">
+                            <span class="input-group-text ms-2">GST Bill No.</span>
+                            <input type="text" name="gst_bill" id="gst_bill" class="form-control" value="{{ gst_bill }}">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary form-control">Submit</button>
+            </form>
+            </div>
+        </div>
+        </div>
+        {% if status == 2 %}
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="card-title">Add Payment</div>
+                    <form action="/transaction" method="post">
+                        <input type="hidden" name="roomno" value="{{roomno}}">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Amount</span>
+                            <input type="text" name="amount" id="amount" class="form-control" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Mode</span>
+                            <input type="text" name="mode" id="mode" class="form-control" list="mode_of_payment" autocomplete="off" />
+                            <datalist id="mode_of_payment">
+                                <option value="Cash">Cash</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                            </datalist>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Description</span>
+                            <input type="text" name="description" id="description" class="form-control" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <button type="submit" class="btn btn-primary form-control">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">Room Shift</div>
+                    <form action="/shift" method="post">
+                        <input type="hidden" name="room" id="room" value="{{roomno}}">
+                        <div class="input-group mb-3">
+                            <select name="nroom" id="nroom" class="form-select">
+                                <option value="">Select Room</option>
+                                {% for room in empty_room %}
+                                    <option value="{{ room['r'] }}">{{ room['r'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group mb-3">
+                            <button type="shift" class="btn btn-primary form-control">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        function search_customer() {
+            let name = $('#search_name').val();
+            let phone = $('#search_phone').val();
+            fetch('/api/sc?name='+name+'&phone='+phone).then(res => {
+                res.json().then(data => {
+                    $('#select_customer_tbody').empty()
+                    for (let i = 0;i < data.length;i++) {
+                        $('#select_customer_tbody').append($(`<tr><td scope='row'>${data[i]['n']}</td><td>${data[i]['p']}</td><td>${data[i]['a']}</td><td>${data[i]['it'] + ' ' + data[i]['ip']}</td><td><button onclick='set_data(${JSON.stringify(data[i])})' data-bs-dismiss='modal' class='btn btn-primary' aria-label='Close'>Select</button></td></tr>`))
+                    }
+                })
+            }).catch(exe => {
+                console.log(exe)
+            })
+        };
+        
+        function set_data(data) {
+            $('#name').val(data.n);
+            $('#address').val(data.a);
+            $('#phone').val(data.p);
+            $('#id_type').val(data.it);
+            $('#id_detail').val(data.ip);
+        };
+
+        $(".nav-link")[0].classList.toggle('active', true);
+        $('#search_name').on('keyup', (e) => {
+            search_customer();
+        });
+        $('#search_phone').on('keyup', (e) => {
+            search_customer();
+        });
+        search_customer();
+    </script>
+{% endblock %}

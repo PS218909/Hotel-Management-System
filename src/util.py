@@ -266,19 +266,27 @@ def get_register_detail(rid = None, page=None, count=None, date=None, gst=False,
         return pd.DataFrame(columns=['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance'])
     customer_df: pd.DataFrame = read_csv(CUSTOMERS_DB)
     merged_register_customer = register_df.merge(right=customer_df, how='left', left_on='cid', right_on='id')
-    merged_register_customer['amount_paid'] = merged_register_customer.apply(lambda row: sum([payment['a_x'] for payment in fetch_payments(row['id_x'])]), axis=1)
+    merged_register_customer['amount_paid'] = merged_register_customer.apply(lambda row: sum([payment['a_x'] for payment in fetch_payments(row['id_x'])]), axis=1) # type: ignore
     merged_register_customer = merged_register_customer.sort_values(by='cin', key=lambda x: pd.to_datetime(x, format='%Y-%m-%dT%H:%M'), ascending=False)
     empty_df = merged_register_customer[merged_register_customer['cout'].isna()]
     non_empty_df = merged_register_customer[merged_register_customer['cout'].notna()]
     merged_register_customer = pd.concat([empty_df, non_empty_df])
     merged_register_customer['cout'] = merged_register_customer['cout'].fillna('')
     merged_register_customer['time_passed'] = merged_register_customer.apply(lambda row: time_difference_str(row['cin'], row['cout']), axis=1)
-    merged_register_customer['remaining_balance'] = merged_register_customer.apply(lambda row: ((time_difference(row['cin'], row['cout'])[0] + (1 if time_difference(row['cin'], row['cout'])[1] >= 0 else 0))*row['rpd']) - row['amount_paid'], axis=1)
+    merged_register_customer['remaining_balance'] = merged_register_customer.apply(remaining_balance_helper, axis=1)
     merged_register_customer['cin'] = merged_register_customer.apply(lambda row: transform_time(row['cin']), axis=1) # type: ignore
     merged_register_customer['cout'] = merged_register_customer.apply(lambda row: transform_time(row['cout']), axis=1) # type: ignore
     final_df = merged_register_customer[['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance', 'gb']]
     final_df['cout'] = final_df['cout'].fillna('Present')
     return final_df
+
+def remaining_balance_helper(row):
+    day, hrs = time_difference(row['cin'], row['cout'])
+    if day == 0:
+        day += 1
+    elif hrs >= 2:
+        day += 1
+    return (day*row['rpd']) - row['amount_paid']
 
 def fetch_gst_info():
     register_df = read_csv(REGISTER_DB)

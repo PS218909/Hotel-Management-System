@@ -38,7 +38,7 @@ def room_form_page(rno):
                 next_id(REGISTER_DB), 
                 rno, 
                 customer_id, 
-                request.form.get('ac'), 
+                request.form.get('ac', 'NON_AC'), 
                 request.form.get('rpd', 0), 
                 request.form.get('pov'), 
                 request.form.get('checkin'), 
@@ -76,14 +76,14 @@ def account_page():
             return redirect(url_for('account_page', page=page, count=count))
         today = {'total_amount': 0, 'cash': 0, 'upi': 0}
         for row in today_payments:
-            mode = row['m'].lower().strip()
-            amount = row['a_x'] if row['rid'] != -1 else -row['a_x']
+            mode = row['m'].lower().strip() # type: ignore
+            amount = row['a_x'] if row['rid'] != -1 else -row['a_x'] # type: ignore
             if mode in ['cahs', 'cash', 'csah', 'chsa'] or mode.startswith('c'):
-                today['cash'] += amount
-                today['total_amount'] += amount
+                today['cash'] += amount # type: ignore
+                today['total_amount'] += amount # type: ignore
             elif mode in ['upi', 'uip', 'ipu'] or mode.startswith('u'):
-                today['upi'] += amount
-                today['total_amount'] += amount
+                today['upi'] += amount # type: ignore
+                today['total_amount'] += amount # type: ignore
         return render_template('account.html', rooms=occupied_rooms, payments=payments, **today)
     else:
         return jsonify({'success': False, 'message': 'Method not allowed.'})
@@ -115,7 +115,7 @@ def analysis_page():
         start_time = request.form.get('start', None)
         end_time = request.form.get('end', None)
     context = get_analysis(start_time, end_time, all=True)
-    return render_template('analysis.html', **context)
+    return render_template('analysis.html', **context) # type: ignore
 
 @app.route('/customers')
 def customer_page():

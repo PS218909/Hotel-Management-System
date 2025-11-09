@@ -22,7 +22,40 @@
                     <tbody>
                         {% for customer in customers %}
                             <tr>
-                                <td scope="row">{{customer['n']}}</td>
+                                <td scope="row"><span style="font-size: 18px; cursor: pointer;"  data-api-id="{{customer['id']}}" data-bs-target="#customerAnalysisModal{{customer['id']}}" data-bs-toggle="modal">&#9432;</span> {{customer['n']}}
+                                <div class="modal modal-xl fade" tabindex="-1" id="customerAnalysisModal{{customer['id']}}" aria-hidden="false">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">{{customer['n']}}</h5>
+                                                <button class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <h4><b>Total Visits: </b> <span id="tv{{customer['id']}}">Loading...</span></h4>
+                                                    <h4><b>Total Amount Paid: </b><span id="ap{{customer['id']}}">Loading...</span></h4>
+                                                </div>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Room No.</th>
+                                                            <th scope="col">Check In</th>
+                                                            <th scope="col">Check Out</th>
+                                                            <th scope="col">Time Passed</th>
+                                                            <th scope="col">Rent Per Day</th>
+                                                            <th scope="col">Amount Paid</th>
+                                                            <th scope="col">Remaining Balance</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="customerDataTable{{customer['id']}}">
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </td>
                                 <td>{{customer['a']}}</td>
                                 <td>{{customer['p']}}</td>
                                 <td>{{customer['it']}}</td>
@@ -81,6 +114,30 @@
                 $(this).toggle($(this).text().replace(/\s+/g, '').toLowerCase().indexOf(value.replace(/\s+/g, '')) > -1)
                 });
             });
+        });
+        $("span").on('click', (e) => {
+            let k = e.target.getAttribute('data-api-id');
+            console.log(k, typeof(k));
+            fetch(`/api/analysis/customer?id=${k}`).then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP Error! Status: ${res.status}`);
+                }
+                return res.json();
+            }).then(res => {
+                console.log(res);
+                $(`#tv${k}`).text(res['tv']);
+                $(`#ap${k}`).text(res['tap']);
+                res['visits'].forEach(visit => {
+                    let tr = $('<tr></tr>');
+                    ['rno', 'cin', 'cout', 'time_passed', 'rpd', 'amount_paid', 'remaining_balance'].forEach((val) => {
+                        tr.append($('<td></td>').text(visit[val]));
+                    })
+                    $(`#customerDataTable${k}`).append(tr);
+                })
+                console.log($(`#customerDataTable${k}`))
+            }).catch(err => {
+                console.log('Error: ' + String(err));
+            })
         });
         $(".nav-link")[4].classList.toggle('active', true);
     </script>

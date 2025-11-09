@@ -180,11 +180,12 @@ def add_transaction_id():
         append_row(TRANSACTIONS_DB, [
             next_id(TRANSACTIONS_DB),
             request.form.get('id', ''),
+            request.form.get('amount', 0),
             request.form.get('time', datetime.now().strftime("%Y-%m-%dT%H:%M")),
             request.form.get('mode', 'cash'),
             request.form.get('description', '')
         ])
-        flash(request.form.get('amount') + ' Rupee received through ' + request.form.get('mode', 'Unknown') + '.', 'success')
+        flash(request.form.get('amount', '0') + ' Rupee received through ' + request.form.get('mode', 'Unknown') + '.', 'success')
         return redirect(url_for('register_page'))
     else:
         flash('Something went wrong. Maybe invalid user input.', 'danger')
@@ -262,3 +263,12 @@ def generate_report():
 def search_customer_np():
     res = search_customer(request.args.get('name', ''), request.args.get('phone', ''))
     return jsonify(res)
+
+@app.route('/api/analysis/customer', methods=['GET'])
+def analysis_customer():
+    cid = request.args.get('id', None)
+    if cid is None:
+        return {}
+    res = get_register_detail(cid=cid)
+    res = res.fillna('')
+    return jsonify({'tv': len(res), 'visits': res.to_dict(orient='records'), 'tap': str(res['amount_paid'].sum())})

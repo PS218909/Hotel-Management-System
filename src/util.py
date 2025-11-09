@@ -241,7 +241,7 @@ def get_room_detail(rno):
         }
         return {'success': False, 'message': 'Room is available.', 'data': res}
 
-def get_register_detail(rid = None, page=None, count=None, date=None, gst=False):
+def get_register_detail(rid = None, page=None, count=None, date=None, gst=False, cid=None):
     if page == None:
         register_df: pd.DataFrame = read_csv(REGISTER_DB)
     else:
@@ -260,6 +260,8 @@ def get_register_detail(rid = None, page=None, count=None, date=None, gst=False)
         register_df = register_df[register_df['id'] == int(rid)]
     if gst:
         register_df = register_df.dropna()
+    if cid is not None:
+        register_df = register_df[register_df['cid'] == int(cid)]
     if len(register_df) == 0:
         return pd.DataFrame(columns=['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance'])
     customer_df: pd.DataFrame = read_csv(CUSTOMERS_DB)

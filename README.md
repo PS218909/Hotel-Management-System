@@ -11,6 +11,7 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 - **Transaction Management**
 - **Report Generation**
 - **Discord Webhook Alerts**
+- **Discord Bot Commands**
 - **Analysis**
 
 ---

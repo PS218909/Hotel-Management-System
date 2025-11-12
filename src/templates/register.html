@@ -23,13 +23,13 @@
                     {% for record in register %}
                         <tr>
                             <td scope="row">{{record['id_x']}} <br />{{record['rno']}}</td>
-                            <td>{{record['n']}} <br />{{record['a']}} <br>{{record['p']}}</td>
+                            <td><span data-link="?cid={{record['cid']}}">{{record['n']}}</span> <br />{{record['a']}} <br>{{record['p']}}</td>
                             <td>{{record['it']}} <br />{{record['ip']}}</td>
                             <td>{{record['cin']}} <br />{{record['cout']}}</td>
                             <td>{{record['rpd']}}</td>
                             <td>{{record['time_passed']}}</td>
                             <td>{{record['amount_paid']}}</td>
-                            <td>{{record['remaining_balance']}}</td>
+                            <td><span style="display: none;">rb</span>{{record['remaining_balance']}}</td>
                             <td>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal{{record['id_x']}}">Add Payment</button>
                                 <div class="modal modal-xl fade" id="addPaymentModal{{record['id_x']}}" tabindex="-1" role="dialog" aria-label="addPaymentLabel{{record['id_x']}}">
@@ -117,13 +117,14 @@
         const url = window.location.search;
         const urlParams = new URLSearchParams(url);
         const page = urlParams.get('page') || 1;
+        const cid = urlParams.get('cid') || 0;
         function go_prev() {
             if (page > 1) {
-                window.location = `/register?page=${Number(page)-1}&count=${$('#count').val()}`;
+                window.location = `?page=${Number(page)-1}&count=${$('#count').val()}&cid=${cid}`;
             } 
         }
         function go_next() {
-            window.location = `/register?page=${Number(page)+1}&count=${$('#count').val()}`;
+            window.location = `?page=${Number(page)+1}&count=${$('#count').val()}&cid=${cid}`;
         }
         $(document).ready(function(){
             $("#searchInput").on("keyup", function() {
@@ -132,6 +133,12 @@
                 $(this).toggle($(this).text().replace(/\s+/g, '').toLowerCase().indexOf(value) > -1)
                 });
             });
+            $("span[data-link]").on('click', (eve) => {
+                console.log(eve);
+                if (eve.ctrlKey) {
+                    window.location = eve.target.getAttribute('data-link');
+                }
+            })
         });
         $(".nav-link")[2].classList.toggle('active', true);
     </script>

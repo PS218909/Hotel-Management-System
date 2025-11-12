@@ -92,13 +92,18 @@ def account_page():
 def register_page():
     page = int(request.args.get('page', 1))
     count = int(request.args.get('count', 50))
+    cid = int(request.args.get('cid', 0))
+    if cid == 0:
+        cid = None
+    else:
+        count = 10000
     if page < 1:
         page = 1
-        return redirect(url_for('register_page', page=page, count=count))
-    register = get_register_detail(page=page, count=count).to_dict(orient='records')
+        return redirect(url_for('register_page', page=page, count=count, cid=cid))
+    register = get_register_detail(page=page, count=count, cid=cid).to_dict(orient='records')
     if len(register) == 0:
         page = len(read_csv(REGISTER_DB))//count
-        return redirect(url_for('register_page', page=page + 1, count=count))
+        return redirect(url_for('register_page', page=page + 1, count=count, cid=cid))
     return render_template('register.html', register = register, count=count)
 
 @app.route('/report', methods=['GET'])

@@ -276,7 +276,7 @@ def get_register_detail(rid = None, page=None, count=None, date=None, gst=False,
     merged_register_customer['remaining_balance'] = merged_register_customer.apply(remaining_balance_helper, axis=1)
     merged_register_customer['cin'] = merged_register_customer.apply(lambda row: transform_time(row['cin']), axis=1) # type: ignore
     merged_register_customer['cout'] = merged_register_customer.apply(lambda row: transform_time(row['cout']), axis=1) # type: ignore
-    final_df = merged_register_customer[['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance', 'gb']]
+    final_df = merged_register_customer[['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance', 'gb', 'cid']]
     final_df['cout'] = final_df['cout'].fillna('Present')
     return final_df
 

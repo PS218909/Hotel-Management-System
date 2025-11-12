@@ -127,6 +127,13 @@ def revenue_generated(start_time = None, end_time = None):
     transaction_df = transaction_df[transaction_df['rid'] != -1]
     return transaction_df['a'].sum()
 
+def day_wise_income(start_time = None, end_time = None):
+    start_time, end_time = get_time_range(start_time, end_time)
+    transaction_df = read_csv(TRANSACTIONS_DB)
+    transaction_df = get_time_based_df(transaction_df, 't', start_time, end_time)
+    day_wise = transaction_df.groupby([transaction_df['t'].dt.year, transaction_df['t'].dt.month, transaction_df['t'].dt.day])['a'].sum(numeric_only=True)
+    return day_wise
+
 def get_analysis(start_time = None, end_time = None, **kwargs):
     st, et = get_time_range(start_time, end_time)
     if kwargs.get('all', False):
@@ -138,5 +145,6 @@ def get_analysis(start_time = None, end_time = None, **kwargs):
             'customer_retention': customer_retention(start_time, end_time),
             'new_customer': new_customer(start_time, end_time),
             'payment_mode_breakdown': payment_mode_breakdown(start_time, end_time),
-            'revenue_generated': revenue_generated(start_time, end_time)
+            'revenue_generated': revenue_generated(start_time, end_time),
+            'day_wise_income': day_wise_income(start_time, end_time)
         }

@@ -127,6 +127,7 @@
                 console.log(res);
                 $(`#tv${k}`).text(res['tv']);
                 $(`#ap${k}`).text(res['tap']);
+                $(`#customerDataTable${k}`).html('')
                 res['visits'].forEach(visit => {
                     let tr = $('<tr></tr>');
                     ['rno', 'cin', 'cout', 'time_passed', 'rpd', 'amount_paid', 'remaining_balance'].forEach((val) => {

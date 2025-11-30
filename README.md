@@ -13,6 +13,8 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 - **Discord Webhook Alerts**
 - **Discord Bot Commands**
 - **Analysis**
+- **Role-Based User Authentication**
+- **Event Log**
 
 ---
 
@@ -43,7 +45,7 @@ Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-Update src/congif.py (To utilize all the function): 
+Update src/config.py (To utilize all the function): 
 ```python
 HOTEL_NAME = "Hotel Name"
 HOTEL_ADDRESS = "Hotel Address"

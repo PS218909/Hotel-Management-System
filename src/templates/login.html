@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="card w-50 m-auto">
+        <div class="card-body">
+            <h2 class="mb-3"><i class="bi bi-person-circle"></i> Log In</h2>
+            <form action="/login" method="post">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Username</span>
+                    <input type="text" name="username" id="username" class="form-control">
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Password</span>
+                    <input type="password" name="password" id="password" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary form-control">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

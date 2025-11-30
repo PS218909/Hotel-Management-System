@@ -47,6 +47,9 @@ def default_values():
     if not os.path.exists(CUSTOMERS_DB):
         with open(CUSTOMERS_DB, 'w') as writer:
             writer.write('id,n,a,p,it,ip')
+    if not os.path.exists(USERS_DB):
+        with open(USERS_DB, 'w') as writer:
+            writer.write('username,password,role')
     else:
         df = read_csv(CUSTOMERS_DB)
         cols = df.columns
@@ -167,18 +170,22 @@ def default_values():
     if not os.path.exists(ALERT_DB):
         with open(ALERT_DB, 'w') as writer:
             writer.write('[]')
+    if not os.path.exists(EVENT_LOG):
+        with open(EVENT_LOG, 'w') as writer:
+            writer.write('time,operation,from,to,by')
 
 def write_csv(filename: str, df: pd.DataFrame):
     try:
         df = df.fillna('')
-        for col in df.columns:
-            try:
-                df[col] = df[col].astype(str)
-                df[col] = df[col].str.upper()
-                for i in range(3):
-                    df[col] = df[col].str.replace('  ', ' ')
-            except Exception as err:
-                continue
+        if filename not in [USERS_DB]:
+            for col in df.columns:
+                try:
+                    df[col] = df[col].astype(str)
+                    df[col] = df[col].str.upper()
+                    for i in range(3):
+                        df[col] = df[col].str.replace('  ', ' ')
+                except Exception as err:
+                    continue
         df.to_csv(filename, index=False)
     except Exception as err:
         print(err)

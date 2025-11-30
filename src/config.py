@@ -12,6 +12,7 @@ ROOMS_DB = os.path.join(DATASET_DIR, "rooms.csv")
 CUSTOMERS_DB = os.path.join(DATASET_DIR, "customer.csv")
 TRANSACTIONS_DB = os.path.join(DATASET_DIR, "transaction.csv")
 REGISTER_DB = os.path.join(DATASET_DIR, "register.csv")
+USERS_DB = os.path.join(DATASET_DIR, 'users.csv')
 ALERT_DB = os.path.join(DATASET_DIR, 'alert.json')
 EVENT_LOG = os.path.join(DATASET_DIR, 'events.csv')
 

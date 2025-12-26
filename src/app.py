@@ -37,11 +37,11 @@ def login_page():
         if len(df) == 0:
             flash("User not found", 'danger')
             return redirect(url_for('login_page'))
-        if df.loc[0, 'password'] != encrypt(pwd):
+        if df.iloc[0]['password'] != encrypt(pwd):
             flash('Invalid password', 'danger')
             return redirect(url_for('login_page'))
         session.setdefault('uname', request.form.get('username'))
-        session.setdefault('urole', df.loc[0, 'role'])
+        session.setdefault('urole', df.iloc[0]['role'])
         append_row(EVENT_LOG, [datetime.now().strftime('%d-%m-%Y %H:%M:%S'),'login','','',uname])
         return redirect(url_for('index_page'))
     return render_template('login.html')
@@ -69,14 +69,16 @@ def signup_page():
             if i.islower():
                 lowercase = False
         if len(pwd) < 8 or symbol or uppercase or lowercase or digits > 0:
-            flash('Password should contain more than 8 characters.\n* 2 Digits\n* 1 Symbol \n* Both uppercase and lowercase character', 'danger')
+            flash('Password should contain more than 8 characters.<br>* 2 Digits<br>* 1 Symbol <br>* Both uppercase and lowercase character', 'danger')
             return redirect(url_for('signup_page'))
         df = read_csv(USERS_DB)
         if len(df[df['username'].str.lower() == uname.lower()]) > 0:
             flash('User Already Exists', 'danger')
             return redirect(url_for('signup_page'))
-        append_row(USERS_DB, [uname.lower(), encrypt(pwd), 'staff'])
+        append_row(USERS_DB, [uname, encrypt(pwd), 'staff'])
         append_row(EVENT_LOG, [datetime.now().strftime('%d-%m-%Y %H:%M:%S'),'signup','','',uname])
+        session.setdefault('uname', uname)
+        session.setdefault('urole', 'staff')
         return redirect(url_for('index_page'))
     return render_template('signup.html')
 
@@ -87,11 +89,19 @@ def logout():
     session.pop('urole')
     return redirect(url_for('index_page'))
 
+@app.route('/admin')
+@roles_required('admin', 'owner')
+def owner_page():
+    rooms = read_csv(ROOMS_DB).to_dict(orient='records')
+    events = read_csv(EVENT_LOG).to_dict(orient='records')[::-1]
+    users = read_csv(USERS_DB).to_dict(orient='records')
+    flash('This page is under development. Some functions might not work currently.', 'info')
+    return render_template('admin.html', login=session.get('uname', None), rooms = rooms, events=events, users=users)
+
 @app.route('/')
 def index_page():
-    push_webhook_alerts()
     stats = get_rooms_status()
-    return render_template("index.html", stats = stats, login=session.get('uname', None))
+    return render_template("index.html", stats = stats, login=session.get('uname', None), role=session.get('urole', None))
 
 @app.route('/room/<rno>', methods=['GET', 'POST'])
 @roles_required('admin', 'manager')

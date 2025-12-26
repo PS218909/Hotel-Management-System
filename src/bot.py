@@ -121,6 +121,21 @@ async def on_message(message: discord.Message):
             await message.reply(embed=embed, file=file)
         except Exception as err:
             print(err)
+    if command == 'upgrade':
+        if ' ' in args:
+            idx, role = args.strip().split(' ', maxsplit=2)
+            df = read_csv(USERS_DB)
+            try:
+                if role not in ['admin', 'manager', 'staff']:
+                    raise ValueError("Invalid Role has been passed. Should be: ['admin', 'manager', 'staff'].")
+                idx = int(idx)
+                if not (0 <= idx < len(df)):
+                    raise ValueError("Index out of range.")
+                df.iloc[idx]['role'] = role
+                write_csv(USERS_DB, df)
+                await message.reply(str(df.iloc[idx]['username']) + ' updated to ' + role)
+            except Exception as err:
+                await message.reply('Error: ' + str(err))
     if command == 'u' or command == 'update':
         if args.startswith("src") and message.attachments:
             for attachment in message.attachments:
@@ -151,6 +166,8 @@ async def on_message(message: discord.Message):
                 zip_file.write(REGISTER_DB)
                 zip_file.write(TRANSACTIONS_DB)
                 zip_file.write(ROOMS_DB)
+                zip_file.write(USERS_DB)
+                zip_file.write(EVENT_LOG)
             zip_buffer.seek(0)
             zipped = discord.File(zip_buffer, filename='dataset.zip')
             await message.reply(file=zipped, content='Files Uploaded Successfully.')
@@ -184,6 +201,13 @@ async def on_message(message: discord.Message):
                 await message.reply('Error: ' + str(err))
         else:
             await message.reply('Unable to extract \'fetch [args]\'')
+    
+    if command == 'list':
+        if args.startswith('user'):
+            df = read_csv(USERS_DB)
+            users = df[['username', 'role']].to_string()
+            await message.channel.send(users)
+    
     if command == 'delete':
         await message.channel.purge(limit=10 + 1) # type: ignore
     
@@ -194,5 +218,5 @@ async def on_message(message: discord.Message):
         await message.reply('👍')
     
     if command in ['h' or 'help']:
-        embed = discord.Embed(title='📌 Help Menu', color=0xffc0cb, description='1. **\'r\' or \'room\':** \n\ta - to get available rooms\n\tb - to get booked rooms\n\t1,2,3...408 - to get room details [Under Development]\n\n2. **\'s\' or \'status\': **Get an detailed image containing booking status and current money available\n\n3. **\'Delete: \'** Delete last 10 messages.\n\n4. **\'h\' or \'help\': To Get This Menu.**')
+        embed = discord.Embed(title='📌 Help Menu', color=0xffc0cb, description='1. **\'r\' or \'room\':** \n\ta - to get available rooms\n\tb - to get booked rooms\n\t1,2,3...408 - to get room details [Under Development]\n\n2. **\'s\' or \'status\': **Get an detailed image containing booking status and current money available\n\n3. **\'Delete: \'** Delete last 10 messages.\n\n4. **\'Upgrade: \'** Update role of a user\n\n5. **\'h\' or \'help\': To Get This Menu.**')
         await message.reply(embed=embed)

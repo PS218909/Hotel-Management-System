@@ -3,6 +3,7 @@ import os, datetime, requests, json, time, threading
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt
+from typing import List
 from .config import *
 
 def default_values():
@@ -41,7 +42,7 @@ def default_values():
                 df['s'] = df['status']
                 df.drop('status', inplace=True)
             else:
-                df['s'] = ['1', '2', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', '2', '2', '1', '2', '2', '2', '2', '2', '2', '1', '2', '2', '1', '2', '1', '2', '2', '1', '2', '1', '2', '2', '1', '1', '1', '1', '1']
+                df['s'] = ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1']
         df = df[['r', 'f', 's']]
         write_csv(ROOMS_DB, df)
     if not os.path.exists(CUSTOMERS_DB):
@@ -49,7 +50,7 @@ def default_values():
             writer.write('id,n,a,p,it,ip')
     if not os.path.exists(USERS_DB):
         with open(USERS_DB, 'w') as writer:
-            writer.write('username,password,role')
+            writer.write('username,password,role\nadmin,admin,admin')
     else:
         df = read_csv(CUSTOMERS_DB)
         cols = df.columns
@@ -59,27 +60,27 @@ def default_values():
             if 'name' in cols:
                 df['n'] = df['name']
             else:
-                df['n'] = [None] * len(df)
+                df['n'] = pd.NA
         if 'p' not in cols:
             if 'phone' in cols:
                 df['p'] = df['phone']
             else:
-                df['p'] = [None] * len(df)
+                df['p'] = pd.NA
         if 'a' not in cols:
             if 'address' in cols:
                 df['a'] = df['address']
             else:
-                df['a'] = [None] * len(df)
+                df['a'] = pd.NA
         if 'it' not in cols:
             if 'id type' in cols:
                 df['it'] = df['id type']
             else:
-                df['it'] = [None] * len(df)
+                df['it'] = pd.NA
         if 'ip' not in cols:
             if 'id detail' in cols:
                 df['ip'] = df['id detail']
             else:
-                df['ip'] = [None] * len(df)
+                df['ip'] = pd.NA
         df = df[['id', 'n', 'a', 'p', 'it', 'ip']]
         write_csv(CUSTOMERS_DB, df)
     if not os.path.exists(TRANSACTIONS_DB):
@@ -94,27 +95,27 @@ def default_values():
             if 'register_id' in cols:
                 df['rid'] = df['register_id']
             else:
-                df['rid'] = [None] * len(df)
+                df['rid'] = pd.NA
         if 'a' not in cols:
             if 'amount' in cols:
                 df['a'] = df['amount']
             else:
-                df['a'] = [None] * len(df)
+                df['a'] = pd.NA
         if 't' not in cols:
             if 'datetime' in cols:
                 df['t'] = df['datetime']
             else:
-                df['t'] = [None] * len(df)
+                df['t'] = pd.NA
         if 'm' not in cols:
             if 'mode' in cols:
                 df['m'] = df['mode']
             else:
-                df['m'] = [None] * len(df)
+                df['m'] = pd.NA
         if 'd' not in cols:
             if 'description' in cols:
                 df['d'] = df['description']
             else:
-                df['d'] = [None] * len(df)
+                df['d'] = pd.NA
         df = df[['id', 'rid', 'a', 't', 'm', 'd']]
         write_csv(TRANSACTIONS_DB, df)
     if not os.path.exists(REGISTER_DB):
@@ -129,17 +130,17 @@ def default_values():
             if 'room' in cols:
                 df['rno'] = df['room']
             else:
-                df['rno'] = [None] * len(df)
+                df['rno'] = pd.NA
         if 'cid' not in cols:
             if 'customer_id' in cols:
                 df['cid'] = df['customer_id']
             else:
-                df['cid'] = [None] * len(df)
+                df['cid'] = pd.NA
         if 'ac' not in cols:
             if 'advance' in cols:
                 df['ac'] = df['advance']
             else:
-                df['ac'] = [None] * len(df)
+                df['ac'] = pd.NA
         if 'rpd' not in cols:
             if 'rate_per_day' in cols:
                 df['rpd'] = df['rate_per_day']
@@ -154,12 +155,12 @@ def default_values():
             if 'checkin' in cols:
                 df['cin'] = df['checkin']
             else:
-                df['cin'] = [None] * len(df)
+                df['cin'] = pd.NA
         if 'cout' not in cols:
             if 'checkout' in cols:
                 df['cout'] = df['checkout']
             else:
-                df['cout'] = [None] * len(df)
+                df['cout'] = pd.NA
         if 'gb' not in cols:
             if 'gst_bill' in cols:
                 df['gb'] = df['gst_bill']
@@ -302,9 +303,8 @@ def fetch_gst_info():
     register_df = register_df.dropna(subset=['gb'])
 
     merged = transaction_df.merge(register_df, how='inner', left_on='rid', right_on='id')
-    merged = merged.sort_values(by='gb')
+    merged = merged.sort_values(by='gb', ascending=False)
     merged_required = merged[['gb', 'a', 'm', 'rno', 't']]
-    merged_required['gb'] = merged_required['gb'].astype(int)
     merged_required['t'] = merged_required['t'].apply(transform_time)
     return merged_required
 
@@ -387,7 +387,7 @@ def time_difference_str(start_time, end_time = None):
     days, hrs = time_difference(start_time, end_time)
     return str(days) + ' Days ' + str(hrs) + ' Hrs'
 
-def fetch_payments(rid=None, page=None, count=None, date=None, **kwargs):
+def fetch_payments(rid=None, page=None, count=None, date=None, **kwargs) -> List[dict]:
     register_df = read_csv(REGISTER_DB)
     customer_df = read_csv(CUSTOMERS_DB)
     transaction_df = read_csv(TRANSACTIONS_DB)
@@ -418,7 +418,7 @@ def fetch_payments(rid=None, page=None, count=None, date=None, **kwargs):
         if kwargs.get('get_sum', False):
             return final_df['a_x'].sum()
     except Exception as err:
-        return 'Unable to fetch amount ' + str(err)
+        return [{"error": 'Unable to fetch amount ' + str(err)}]
     return final_df.to_dict(orient='records')
 
 def transform_time(row):
@@ -531,11 +531,11 @@ def push_webhook_alerts():
     try:
         f_data = json.load(f)
     except Exception as exe:
-        send_webhook_alert({'Title': 'alert file format error', 'description': str(exe)})
+        send_webhook_alert({'Title': 'alert file format error', 'description': str(exe) + '\nOverwriting: []\nSuccessfull'})
+        f = open(ALERT_DB, 'w')
+        f.write('[]')
+        f.close()
         return
-    f = open(ALERT_DB, 'w')
-    f.write('[]')
-    f.close()
     for data in f_data:
         time.sleep(2)
         send_webhook_alert(data)

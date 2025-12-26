@@ -25,6 +25,10 @@
                     <li class="nav-item"><a href="/register" class="nav-link">Register</a></li>
                     <li class="nav-item"><a href="/report" class="nav-link">Report</a></li>
                     <li class="nav-item"><a href="/customers" class="nav-link">Customers</a></li>
+                    {% if role and role in ['admin', 'owner'] %}
+                        <li class="nav-item"><a href="/analysis" class="nav-link">Analysis</a></li>
+                        <li class="nav-item"><a href="/admin" class="nav-link">Admin</a></li>
+                    {% endif %}
                 </ul>
             </div>
             <div class="d-flex">
@@ -33,7 +37,7 @@
                         <li class="nav-item"><a href="/login" class="nav-link"><i class="bi bi-person-circle"></i> Log In</a></li>
                         <li class="nav-item"><a href="/signup" class="nav-link"><i class="bi bi-person-add"></i> Sign Up</a></li>
                     {% else %}
-                        <li class="nav-item"><a href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        <li class="nav-item"><a href="/logout" class="nav-link"><i class="bi bi-box-arrow-right"></i> {{login}}</a></li>
                     {% endif %}
                 </ul>
             </div>

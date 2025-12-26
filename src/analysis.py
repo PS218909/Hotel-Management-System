@@ -54,7 +54,7 @@ def revenue_based_on_purpose(start_time = None, end_time = None):
             pov_similar['BANK'].append(pov)
         elif "OFFI" in pov:
             pov_similar['OFFICIAL'].append(pov)
-        elif "MED" in pov or "HOSP" in pov:
+        elif "HOSP" in pov:
             pov_similar['HOSPITAL'].append(pov)
         elif "VISIT" in pov:
             pov_similar['VISIT'].append(pov)
@@ -134,6 +134,13 @@ def day_wise_income(start_time = None, end_time = None):
     day_wise = transaction_df.groupby([transaction_df['t'].dt.year, transaction_df['t'].dt.month, transaction_df['t'].dt.day])['a'].sum(numeric_only=True)
     return day_wise
 
+def total_room_booked(start_time=None, end_time=None):
+    start_time, end_time = get_time_range(start_time, end_time)
+    register_df = read_csv(REGISTER_DB)
+    register_df = get_time_based_df(register_df, 'cin', start_time, end_time)
+    register_df = register_df[register_df['rno'] > 16]
+    return len(register_df)
+
 def get_analysis(start_time = None, end_time = None, **kwargs):
     st, et = get_time_range(start_time, end_time)
     if kwargs.get('all', False):
@@ -146,5 +153,6 @@ def get_analysis(start_time = None, end_time = None, **kwargs):
             'new_customer': new_customer(start_time, end_time),
             'payment_mode_breakdown': payment_mode_breakdown(start_time, end_time),
             'revenue_generated': revenue_generated(start_time, end_time),
-            'day_wise_income': day_wise_income(start_time, end_time)
+            'day_wise_income': day_wise_income(start_time, end_time),
+            'total_room_booked': total_room_booked(start_time, end_time)
         }

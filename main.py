@@ -2,7 +2,6 @@ from src.app import app
 from src.util import default_values, push_webhook_alerts
 from src.bot import client
 from src.config import DEBUG, DISCORD_BOT_TOKEN
-from src.analysis import *
 
 import threading
 

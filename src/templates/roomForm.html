@@ -1,39 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="modal modal-xl fade" id="selectCustomerModal" tabindex="-1" role="dialog" aria-labelledby="selectCustomerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="selectCustomerModalLabel">Select Customer 🧑</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text">Name</span>
-                        <input type="text" id="search_name" class="form-control" />
-                        <span class="input-group-text ms-2">Phone</span>
-                        <input type="number" id="search_phone" class="form-control" />
+    <div class="modal modal-xl fade" tabindex="-1" id="selectCustomerModal" aria-labelledby="selectCustomerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header mb-2">
+                        <h5 class="modal-title">Add Customer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="mb-3">
-                        <table class="table table-hover table-striped">
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <label for="searchName" class="input-group-text">Name</label>
+                            <input type="text" id="searchName" class="form-control" placeholder="Name">
+                            <label for="searchPhone" class="ms-2 input-group-text">Phone</label>
+                            <input type="number" id="searchPhone" class="form-control" placeholder="Phone">
+                            <label for="searchAddress" class="ms-2 input-group-text">Address</label>
+                            <input type="text" id="searchAddress" class="form-control" placeholder="Address">
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="searchIDType" class="input-group-text">ID Type</label>
+                            <input type="text" id="searchIDType" class="form-control" placeholder="ID Type">
+                            <label for="searchIDDetail" class="ms-2 input-group-text">ID Detail</label>
+                            <input type="text" id="searchIDDetail" class="form-control" placeholder="ID Detail">
+                        </div>
+                        <div class="input-group">
+                            <button id="submitSelectModal" class="btn btn-success form-control" data-bs-dismiss="modal">Submit</button>
+                        </div>
+                        <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th scope="col">Name</th>
                                     <th scope="col">Phone</th>
                                     <th scope="col">Address</th>
-                                    <th scope="col">ID</th>
+                                    <th scope="col">ID Type</th>
+                                    <th scope="col">ID Detail</th>
                                     <th scope="col">Operation</th>
                                 </tr>
                             </thead>
-                            <tbody id="select_customer_tbody">
-
-                            </tbody>
+                            <tbody id="customerDetails"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     <h2 class="ms-3">🛌Room No.: {{ roomno }}</h2>
     {% if status == 2 %}
     <div class="row mb-3">
@@ -85,24 +93,24 @@
                             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#selectCustomerModal">Select Customer</button>
                             <div class="input-group mb-3">
                             <label for="name"><span class="input-group-text">Name</span></label>
-                            <input type="text" name="name" id="name" class="form-control" value="{{name}}" required />
+                            <input type="text" name="name" id="name" class="form-control" value="{{name}}" required disabled />
                             <label for="phone"><span class="input-group-text ms-4">Phone</span></label>
-                            <input type="number" name="phone" id="phone" class="form-control" value="{{phone}}" required />
+                            <input type="number" name="phone" id="phone" class="form-control" value="{{phone}}" required disabled />
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text">Address</span>
-                            <input type="text" name="address" id="address" class="form-control" value="{{address}}" required />
+                            <input type="text" name="address" id="address" class="form-control" value="{{address}}" required disabled />
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text">ID Type</span>
-                            <input type="text" name="id_type" id="id_type" class="form-control" value="{{id_type}}" required />
+                            <input type="text" name="id_type" id="id_type" class="form-control" value="{{id_type}}" required disabled />
                             <datalist id="id_type_list">
                                 <option value="AADHAR">AADHAR</option>
                                 <option value="PASSPORT">PASSPORT</option>
                                 <option value="DRIVING LICENSE">LICENSE</option>
                             </datalist>
                             <span class="input-group-text ms-3">ID Detail</span>
-                            <input type="text" name="id_detail" id="id_detail" class="form-control" value="{{id_detail}}" required />
+                            <input type="text" name="id_detail" id="id_detail" class="form-control" value="{{id_detail}}" required disabled />
                         </div>
                     </div>
                 </div>
@@ -112,12 +120,12 @@
                         <div class="input-group mb-3">
                             <label for="ac">
                                 <span class="input-group-text">
-                                    <input type="radio" class="form-check-input me-2" name="ac" id="ac" value="ac" {{"checked" if ac == "AC" }} /> AC
+                                    <input type="radio" class="form-check-input me-2" name="ac" id="ac" value="ac" {{"checked" if ac == "AC" }} required /> AC
                                 </span>
                             </label>
                             <label for="non_ac">
                                 <span class="input-group-text ms-4">
-                                    <input type="radio" class="form-check-input me-2" name="ac" id="non_ac" value="non_ac" {{ "checked" if ac == "NON_AC" }} /> Non AC
+                                    <input type="radio" class="form-check-input me-2" name="ac" id="non_ac" value="non_ac" {{ "checked" if ac == "NON_AC" }} required /> Non AC
                                 </span>
                             </label>
                                 <span class="input-group-text ms-4">Purpose of Visit</span>
@@ -125,7 +133,7 @@
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text">Room Rent Per Day</span>
-                            <input type="number" name="rpd" id="rpd" class="form-control" value="{{ rpd }}" />
+                            <input type="number" name="rpd" id="rpd" class="form-control" value="{{ rpd }}" required />
                             <span class=" ms-2 input-group-text">Check In</span>
                             <input type="datetime-local" name="checkin" id="checkin" class="form-control" value="{{ checkin }}" required>
                         </div>
@@ -197,20 +205,51 @@
         {% endif %}
     </div>
     <script>
-        function search_customer() {
-            let name = $('#search_name').val();
-            let phone = $('#search_phone').val();
-            fetch('/api/sc?name='+name+'&phone='+phone).then(res => {
-                res.json().then(data => {
-                    $('#select_customer_tbody').empty()
-                    for (let i = 0;i < data.length;i++) {
-                        $('#select_customer_tbody').append($(`<tr><td scope='row'>${data[i]['n']}</td><td>${data[i]['p']}</td><td>${data[i]['a']}</td><td>${data[i]['it'] + ' ' + data[i]['ip']}</td><td><button onclick='set_data(${JSON.stringify(data[i])})' data-bs-dismiss='modal' class='btn btn-primary' aria-label='Close'>Select</button></td></tr>`))
-                    }
+        function overWriteTable(id, attrib, data) {
+            const _table = document.getElementById(id);
+            _table.innerHTML = ''
+            data.forEach((element) => {
+                const row = document.createElement('tr');
+                attrib.forEach((h) => {
+                    const cell = document.createElement('td');
+                    cell.innerText = element[h];
+                    row.appendChild(cell);
                 })
-            }).catch(exe => {
-                console.log(exe)
+                const optd = document.createElement('td');
+                const selectButton = document.createElement('button');
+                selectButton.innerText = 'Select'
+                selectButton.classList = 'btn btn-success'
+                selectButton.setAttribute('data-bs-dismiss', 'modal');
+                selectButton.onclick = (eve) => {
+                    set_data(element);
+                }
+                optd.appendChild(selectButton);
+                row.appendChild(optd);
+                _table.appendChild(row);
             })
-        };
+        }
+
+        function searchCustomer() {
+            const user = {
+                'name': document.getElementById('searchName').value,
+                'phone': document.getElementById('searchPhone').value,
+                'address': document.getElementById('searchAddress').value,
+                'idtype': document.getElementById('searchIDType').value,
+                'iddetail': document.getElementById('searchIDDetail').value,
+            }
+            const req = fetch(`/api/sc?name=${user.name}&phone=${user.phone}&address=${user.address}&idtype=${user.idtype}&iddetail=${user.iddetail}`).then(val => {
+                return val.json();
+            });
+            req.then((data) => {
+                overWriteTable('customerDetails', ['n', 'p', 'a', 'it', 'ip'], data);
+            });
+        }
+        const searchInputArray = document.getElementById('selectCustomerModal').getElementsByTagName('input');
+        for (let i = 0;i < searchInputArray.length;i++) {
+            searchInputArray.item(i).addEventListener('keyup', (eve) => {
+                searchCustomer();
+            })
+        }
         
         function set_data(data) {
             $('#name').val(data.n);
@@ -220,13 +259,14 @@
             $('#id_detail').val(data.ip);
         };
 
+        $("#submitSelectModal")[0].onclick = (eve) => {
+            $('#name').val($("#searchName").val());
+            $('#address').val($("#searchAddress").val());
+            $('#phone').val($("#searchPhone").val());
+            $('#id_type').val($("#searchIDType").val());
+            $('#id_detail').val($("#searchIDDetail").val());
+        }
+
         $(".nav-link")[0].classList.toggle('active', true);
-        $('#search_name').on('keyup', (e) => {
-            search_customer();
-        });
-        $('#search_phone').on('keyup', (e) => {
-            search_customer();
-        });
-        search_customer();
     </script>
 {% endblock %}

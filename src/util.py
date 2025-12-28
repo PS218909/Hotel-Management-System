@@ -367,9 +367,15 @@ def next_id(file, id='id'):
         return 1
     return df[id].max() + 1
 
-def search_customer(name, phone):
+def search_customer(name, phone, address, idtype, iddetail):
     df = read_csv(CUSTOMERS_DB)
-    return df[(df['n'].str.lower().str.startswith(name.lower())) & (df['p'].astype(str).str.startswith(str(phone)))].to_dict(orient='records')
+    return df[
+        (df['n'].str.lower().str.startswith(name.lower())) & 
+        (df['p'].astype(str).str.startswith(str(phone))) &
+        (df['a'].astype(str).str.startswith(address.lower())) &
+        (df['it'].astype(str).str.startswith(idtype.lower())) &
+        (df['ip'].astype(str).str.startswith(iddetail.lower()))
+    ].to_dict(orient='records')
 
 def time_difference(start_time, end_time = None):
     if end_time is None or end_time == '':

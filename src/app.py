@@ -383,7 +383,7 @@ def generate_report():
 
 @app.route('/api/sc', methods=['GET'])
 def search_customer_np():
-    res = search_customer(request.args.get('name', ''), request.args.get('phone', ''))
+    res = search_customer(request.args.get('name', ''), request.args.get('phone', ''), request.args.get('address', ''), request.args.get('idtype', ''), request.args.get('iddetail', ''))
     return jsonify(res)
 
 @app.route('/api/analysis/customer', methods=['GET'])

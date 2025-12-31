@@ -93,24 +93,24 @@
                             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#selectCustomerModal">Select Customer</button>
                             <div class="input-group mb-3">
                             <label for="name"><span class="input-group-text">Name</span></label>
-                            <input type="text" name="name" id="name" class="form-control" value="{{name}}" required disabled />
+                            <input type="text" name="name" id="name" class="form-control" value="{{name}}" required readonly />
                             <label for="phone"><span class="input-group-text ms-4">Phone</span></label>
-                            <input type="number" name="phone" id="phone" class="form-control" value="{{phone}}" required disabled />
+                            <input type="number" name="phone" id="phone" class="form-control" value="{{phone}}" required readonly />
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text">Address</span>
-                            <input type="text" name="address" id="address" class="form-control" value="{{address}}" required disabled />
+                            <input type="text" name="address" id="address" class="form-control" value="{{address}}" required readonly />
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text">ID Type</span>
-                            <input type="text" name="id_type" id="id_type" class="form-control" value="{{id_type}}" required disabled />
+                            <input type="text" name="id_type" id="id_type" class="form-control" value="{{id_type}}" required readonly />
                             <datalist id="id_type_list">
                                 <option value="AADHAR">AADHAR</option>
                                 <option value="PASSPORT">PASSPORT</option>
                                 <option value="DRIVING LICENSE">LICENSE</option>
                             </datalist>
                             <span class="input-group-text ms-3">ID Detail</span>
-                            <input type="text" name="id_detail" id="id_detail" class="form-control" value="{{id_detail}}" required disabled />
+                            <input type="text" name="id_detail" id="id_detail" class="form-control" value="{{id_detail}}" required readonly />
                         </div>
                     </div>
                 </div>

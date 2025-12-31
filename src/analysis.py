@@ -3,11 +3,11 @@ from .util import *
 def get_time_range(start_time = None, end_time = None):
     if start_time is None:
         cnt = datetime.datetime.now()
-        start_month = cnt.replace(day=1)
+        start_month = cnt.replace(day=1, hour=0, minute=0, second=0)
         day = 31
         while True:
             try:
-                end_month = cnt.replace(day=day)
+                end_month = cnt.replace(day=day, hour=23, minute=59, second=59, microsecond=9999)
                 break
             except Exception as err:
                 day -= 1
@@ -15,8 +15,7 @@ def get_time_range(start_time = None, end_time = None):
     elif end_time is None:
         cnt = datetime.datetime.now()
         start_month = datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M')
-        end_month = cnt.replace(month=(cnt.month+1 if cnt.month != 12 else 1))
-        end_month = end_month - datetime.timedelta(days=1)
+        end_month = cnt.replace(month=(cnt.month+1 if cnt.month != 12 else 1), day=1, hour=0, minute=0, second=0)
         return start_month, end_month
     else:
         start_month = datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M')
@@ -40,13 +39,13 @@ def revenue_based_on_purpose(start_time = None, end_time = None):
     register_df['amount_paid'] = register_df.apply(lambda x: group_rid[x['id']] if x['id'] in group_rid else 0, axis=1) # type: ignore
     group_pov = register_df.groupby('pov')['amount_paid'].sum()
     pov_similar = {
-        'OFFICIAL': ['300', '448', 'OFFICE', 'OFFICIAL', 'AAM EXAM', 'JOB', 'OFFICE WORK', 'OFFICIAL VISIT', 'OFFICILA', 'EXAM', 'GOVT WORK', 'SACUT INSTRUCTION', 'SALUTE INSTRUCTION', 'SERVICE', 'SEVICE', 'COURT', 'SURVICE', 'JIO', 'JIO TOWER'],
+        'OFFICIAL': ['300', '448', 'OFFICE', 'OFFICIAL', 'AAM EXAM', 'JOB', 'OFFICE WORK', 'OFFICIAL VISIT', 'OFFICILA', 'EXAM', 'GOVT WORK', 'SACUT INSTRUCTION', 'SALUTE INSTRUCTION', 'SERVICE', 'SEVICE', 'COURT', 'SURVICE', 'JIO', 'JIO TOWER', 'AIRTEL TOWER', 'AUDIT', 'DELION JIO', 'ELIVATOR WORK', 'FOR LAND', 'GOVT ITI'],
         'BANK': ['BANK', 'BANK WORK', 'SBI', 'BANK OFFICIAL'],
         'BUSINESS': ['BIRI PATTA', 'KLAVA', 'BUSSINESS', 'PATTA', 'RICE', 'TOWER ELECTRICAL', 'VIDEO DOCUMENT SHOOT', 'CAR SALE', 'RICEMIL', 'SOLAR', 'SPEEKER SALES', 'TOWER AIRTEL', 'GARBA'],
         'HOSPITAL': ['HOSPITAL', 'MEDICAL', 'MEDICAL WORK', 'MEDICINE', 'MR MEDICINE'],
-        'VISIT': ['SCHOOL VISIT', 'VIST', 'MEET', 'MEETING', 'HYDERABAD VISIT', 'REST', 'COLLEGE', 'BRANCH VISIT SFL', 'FIELD VISIT', 'HEALD VISI', 'STAT TOUR', 'VISIT MEET', 'A/C MECANIC'],
+        'VISIT': ['SCHOOL VISIT', 'VIST', 'MEET', 'MEETING', 'HYDERABAD VISIT', 'REST', 'COLLEGE', 'BRANCH VISIT SFL', 'FIELD VISIT', 'HEALD VISI', 'STAT TOUR', 'VISIT MEET', 'A/C MECANIC', 'DRIVING', 'TOUR', 'TOURIST', 'TURIST'],
         'PERSONAL': ['PERSONAL', 'PORSANAL', '19.COMPUTER', 'GADI LENE', 'HOME WORK', 'PENTER', 'TRAINING', 'CLC'],
-        'MARKETING': ['MARKETING', 'MKT', 'SURVEY', 'SERVEY'],
+        'MARKETING': ['MARKETING', 'MKT', 'SURVEY', 'SERVEY', 'DALI', 'EMF SURVEY'],
         'OTHER': []
     }
     for pov, amount in group_pov.items():
@@ -60,6 +59,8 @@ def revenue_based_on_purpose(start_time = None, end_time = None):
             pov_similar['VISIT'].append(pov)
         elif 'BUS' in pov:
             pov_similar['BUSINESS'].append(pov)
+        elif 'MKT' in pov:
+            pov_similar['MARKETING'].append(pov)
         else:
             pov_similar['OTHER'].append(pov)
     revenue = {}
@@ -141,8 +142,22 @@ def total_room_booked(start_time=None, end_time=None):
     register_df = register_df[register_df['rno'] > 16]
     return len(register_df)
 
+def total_dormitory_booked(start_time=None, end_time=None):
+    start_time, end_time = get_time_range(start_time, end_time)
+    register_df = read_csv(REGISTER_DB)
+    register_df = get_time_based_df(register_df, 'cin', start_time, end_time)
+    register_df = register_df[register_df['rno'] <= 16]
+    return len(register_df)
+
+def total_booked(start_time=None, end_time=None):
+    start_time, end_time = get_time_range(start_time, end_time)
+    register_df = read_csv(REGISTER_DB)
+    register_df = get_time_based_df(register_df, 'cin', start_time, end_time)
+    return len(register_df)
+
 def get_analysis(start_time = None, end_time = None, **kwargs):
     st, et = get_time_range(start_time, end_time)
+    print(st, et)
     if kwargs.get('all', False):
         return {
             'start_time': st.strftime('%Y-%m-%dT00:00'),
@@ -154,5 +169,7 @@ def get_analysis(start_time = None, end_time = None, **kwargs):
             'payment_mode_breakdown': payment_mode_breakdown(start_time, end_time),
             'revenue_generated': revenue_generated(start_time, end_time),
             'day_wise_income': day_wise_income(start_time, end_time),
-            'total_room_booked': total_room_booked(start_time, end_time)
+            'total_room_booked': total_room_booked(start_time, end_time),
+            'total_dormitory_booked': total_dormitory_booked(start_time, end_time),
+            'total_booked': total_booked(start_time, end_time),
         }

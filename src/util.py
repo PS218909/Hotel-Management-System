@@ -187,7 +187,7 @@ def write_csv(filename: str, df: pd.DataFrame):
                         df[col] = df[col].str.replace('  ', ' ')
                 except Exception as err:
                     continue
-        df.to_csv(filename, index=False)
+        df.to_csv(filename, index=False, float_format="%.0f")
     except Exception as err:
         print(err)
         return err
@@ -269,7 +269,7 @@ def get_register_detail(rid = None, page=None, count=None, date=None, gst=False,
     if gst:
         register_df = register_df.dropna()
     if cid is not None:
-        register_df = register_df[register_df['cid'] == int(cid)]
+        register_df = register_df[register_df['cid'] == cid]
     if len(register_df) == 0:
         return pd.DataFrame(columns=['id_x', 'rno', 'rpd', 'pov', 'n', 'a', 'p', 'it', 'ip', 'time_passed', 'amount_paid', 'cin', 'cout', 'remaining_balance'])
     customer_df: pd.DataFrame = read_csv(CUSTOMERS_DB)
@@ -370,11 +370,11 @@ def next_id(file, id='id'):
 def search_customer(name, phone, address, idtype, iddetail):
     df = read_csv(CUSTOMERS_DB)
     return df[
-        (df['n'].str.lower().str.startswith(name.lower())) & 
+        (df['n'].str.startswith(name)) & 
         (df['p'].astype(str).str.startswith(str(phone))) &
-        (df['a'].astype(str).str.startswith(address.lower())) &
-        (df['it'].astype(str).str.startswith(idtype.lower())) &
-        (df['ip'].astype(str).str.startswith(iddetail.lower()))
+        (df['a'].astype(str).str.startswith(address)) &
+        (df['it'].astype(str).str.startswith(idtype)) &
+        (df['ip'].astype(str).str.startswith(iddetail))
     ].to_dict(orient='records')
 
 def time_difference(start_time, end_time = None):
@@ -460,11 +460,11 @@ def create_report(date):
     for idx, row in final_df.iterrows():
         idx_int = int(idx) # type: ignore
         table.rows[idx_int + 1].cells[0].text = str(idx_int + 1) # pyright: ignore[reportOperatorIssue]
-        table.rows[idx_int + 1].cells[1].text = row['n'] + '\n' + row['a']
-        table.rows[idx_int + 1].cells[2].text = row['cin']
+        table.rows[idx_int + 1].cells[1].text = str(row['n']) + '\n' + str(row['a'])
+        table.rows[idx_int + 1].cells[2].text = str(row['cin'])
         table.rows[idx_int + 1].cells[3].text = str(row['p'])
-        table.rows[idx_int + 1].cells[4].text = row['it'] + '\n' + str(row['ip'])
-        table.rows[idx_int + 1].cells[5].text = row['pov']
+        table.rows[idx_int + 1].cells[4].text = str(row['it']) + '\n' + str(row['ip'])
+        table.rows[idx_int + 1].cells[5].text = str(row['pov'])
         table.rows[idx_int + 1].cells[0].width = Inches(0.5)
         table.rows[idx_int + 1].cells[1].width = Inches(3)
         table.rows[idx_int + 1].cells[2].width = Inches(2.5)

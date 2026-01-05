@@ -391,6 +391,6 @@ def analysis_customer():
     cid = request.args.get('id', None)
     if cid is None:
         return {}
-    res = get_register_detail(cid=cid)
+    res = get_register_detail(cid=float(cid))
     res = res.fillna('')
     return jsonify({'tv': len(res), 'visits': res.to_dict(orient='records'), 'tap': str(res['amount_paid'].sum())})

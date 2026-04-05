@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+    <div>
+        <datalist id="unique_floors">
+            <option value=""></option>
+            {% for floor in unique_floors %}
+                <option value="{{floor}}">{{floor}}</option>
+            {% endfor %}
+        </datalist>
+        <form action="/room/create" method="post">
+            <div class="row">
+                <div class="input-group">
+                    <label for="room_number">Room No.</label>
+                    <input type="text" name="room_number" id="room_number" placeholder="Room No." required>
+                </div>
+                <div class="input-group">
+                    <label for="floor_number">Floor</label>
+                    <input type="text" name="floor_number" id="floor_number" placeholder="Floor" list="unique_floors" required>
+                </div>
+                <div class="input-group">
+                    <label for="capacity">Capacity</label>
+                    <input type="number" name="capacity" id="capacity" placeholder="Capacity" required>
+                </div>
+            </div>
+            <div class="row">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+        <div> <!-- style="display: block;height: 500px; overflow-y: scroll;" -->
+            <table class="table-wrapper">
+                <thead>
+                    <tr>
+                        <th>Room No.</th>
+                        <th>Floor No.</th>
+                        <th>Capacity</th>
+                        <th>Operation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                        <tr>
+                            <td>{{room['room_number']}}</td>
+                            <td>{{room['floor_number']}}</td>
+                            <td>{{room['capacity']}}</td>
+                            <td style="display: flex; gap: 10px;">
+                                <button class="btn-primary" data-trigger="editModal{{room['id']}}" id="edit{{room['id']}}">Edit</button>
+                                <div class="modal" id="editModal{{room['id']}}">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2>Edit Room</h2>
+                                            <span class="btn-close" data-dismiss="modal">&times;</span>
+                                        </div>
+                                        <hr />
+                                        <div class="modal-body">
+                                            <form action="room/edit/{{room['id']}}" method="post" autocomplete="off">
+                                                <div class="row">
+                                                    <input type="hidden" name="id" value="{{room['id']}}">
+                                                    <div class="input-group">
+                                                        <label for="room_number">Room No.</label>
+                                                        <input type="text" name="room_number" id="room_number" value="{{room['room_number']}}">
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <label for="floor_number">Floor</label>
+                                                        <input type="text" name="floor_number" id="floor_number" value="{{room['floor_number']}}" list="unique_floors">
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <label for="capacity">Capacity</label>
+                                                        <input type="number" min="1" max="4" name="capacity" id="capacity" value="{{room['capacity']}}">
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <button type="submit">Submit</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form action="room/delete" method="post">
+                                    <input type="hidden" name="room_id" value="{{room['id']}}">
+                                    <button class="btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <h2>Configuration</h2>
+    <table class="table-wrapper" style="margin-top: 30px;">
+        <thead>
+            <tr>
+                <th width="300px">Key</th>
+                <th>
+                    Value
+                    <button style="float: right;" data-trigger="newConfigModal" id="addKeyModal">+</button>
+                    <div class="modal" id="newConfigModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">New Config</h2>
+                                <span class="btn-close" data-dismiss="modal">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <form action="config/new" method="post">
+
+                                    <div class="row">
+                                        <input type="text" name="key" placeholder="Key">
+                                        <input type="text" name="value" placeholder="Value">
+                                    </div>
+                                    <div class="row">
+                                        <button class="btn-primary" id="submitNewConfig">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <form action="/admin" method="post">
+
+                {% for k, v in json_data.items() %}
+                <tr>
+                    <td>{{k}}</td>
+                    <td>
+                        <input type="text" name="{{k}}" value="{{v}}">
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr style="text-align: center;">
+                    <td colspan="2">
+                        <div class="row">
+                            <button class="btn-primary" type="submit">Submit</button>
+                        </div>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+    <script>
+        function run() {
+            document.querySelectorAll('[data-trigger]').forEach((ele) => {
+                const modal = new Modal(ele.id);
+            })
+            if (!sessionStorage.getItem('godMode'))
+                window.location = '/room';
+        }
+        setInterval(run, 1000);
+    </script>
+{% endblock %}

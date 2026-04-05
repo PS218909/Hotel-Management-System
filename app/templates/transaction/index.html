@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+    <div class="row">
+        <input type="hidden" id="page" value="1">
+        <input type="hidden" id="per_page" value="10">
+        <div class="input-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Name" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label for="payment_method">Mode Of Payment</label>
+            <input type="text" id="payment_method" placeholder="Mode Of Payment" autocomplete="off" list="payment_method_options">
+            <datalist id="payment_method_options">
+                <option value="all">All</option>
+                <option value="Cash">Cash</option>
+                <option value="UPI">UPI</option>
+            </datalist>
+        </div>
+        <div class="input-group">
+            <label for="transaction_time">Date</label>
+            <input type="date" id="transaction_date">
+        </div>
+    </div>
+    <div id="debug"></div>
+    <table class="table-wrapper">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Room No.</th>
+                <th>Payee's Name</th>
+                <th>Amount Paid</th>
+                <th>Mode Of Payment</th>
+                <th>Operations</th>
+            </tr>
+        </thead>
+        <tbody id="transaction_table">
+            <!-- {% for transaction in transactions[::-1] %}
+                <tr>
+                    <td>{{transaction.transaction_time}}</td>
+                    <td>{{transaction.room_number or 'MISSING'}}</td>
+                    <td>{{transaction.name or 'MISSING'}}</td>
+                    <td>{{transaction.amount_paid}}</td>
+                    <td>{{transaction.payment_method}}</td>
+                    <td>
+                        <button class="btn-primary">Edit</button>
+                        <button class="btn-danger" onclick="delete_transaction({{transaction.id}})">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %} -->
+        </tbody>
+    </table>
+    <div class="row">
+        <button class="btn-success" id="prevBtn">Prev</button>
+        <button class="btn-success" id="nextBtn">Next</button>
+    </div>
+    <script>
+        const name = document.getElementById('name');
+        const payment_method = document.getElementById('payment_method');
+        const transaction_date = document.getElementById('transaction_date');
+        const tbody = document.getElementById('transaction_table');
+
+        const transaction_paginator = new Paginator({url: '/api/search/transaction'});
+        
+        function collectFilters() {
+            const filters = {};
+
+            const fields = [
+                'name',
+                'payment_method',
+                'transaction_date',
+                'page',
+                'per_page'
+            ];
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value !== '') {
+                    filters[id] = el.value;
+                }
+            });
+
+            return filters;
+        }
+
+        function delete_transaction(transaction_id) {
+            if (confirm('Are you sure?')) {
+                fetch(`/account/delete/${transaction_id}`)
+                .then(res => res.json())
+                .then(({success}) => {
+                    console.log(success)
+                    if (success) {
+                        alert('Record Deleted Successfully!');
+                        window.location.reload();
+                    } else {
+                        alert('Unable to delete record!');
+                    }
+                });
+            }
+        }
+
+        function redrawRegisterTable(data) {
+            tbody.innerHTML = "";
+
+            data.forEach((item, index) => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${item.transaction_time}</td>
+                    <td>${item.room_no}</td>
+                    <td>${item.name}</td>
+                    <td>₹${item.amount_paid}</td>
+                    <td>${item.payment_mode}</td>
+                    <td>
+                        <button class="btn-primary" data-index="${index}">Edit</button>
+                        <button class="btn-danger" data-index="${index}">Delete</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function debounce_search_customer() {
+            transaction_paginator.reset();
+            const res = await transaction_paginator.next(collectFilters());
+            console.log(res);
+            redrawRegisterTable(res);
+        }
+
+        document.getElementById('nextBtn').onclick = async (eve) => {
+            const res = await transaction_paginator.next(collectFilters());
+            console.log(res);
+            redrawRegisterTable(res);
+        }
+        document.getElementById('prevBtn').onclick = async (eve) => {
+            const res = await transaction_paginator.prev(collectFilters());
+            if (res.length >= 1)
+                redrawRegisterTable(res);
+        }
+
+        debounce(debounce_search_customer, [name, payment_method]);
+        transaction_date.oninput = debounce_search_customer;
+        debounce_search_customer();
+    </script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Room{% endblock %}
+{% block content %}
+    <style>
+        .floor-section {
+            margin-bottom: 30px;
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        .floor-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .room-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: visible;
+        }
+
+        .room-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .available {
+            background-color: #e8f8ee;
+            border-left: 6px solid #28a745;
+        }
+
+        .occupied {
+            background-color: #fdeaea;
+            border-left: 6px solid #dc3545;
+        }
+
+        .room-number {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* Tooltip container */
+        .tooltip-box {
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            
+            background: #1f2937;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            
+            box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            z-index: 100;
+        }
+
+        /* Small arrow */
+        .tooltip-box::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+
+        /* Show on hover (only occupied rooms have tooltip) */
+        .room-card.occupied:hover .tooltip-box {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+{% set floors = rooms | groupby('floor_number') %}
+
+<!-- <a href="/register/delete">Reset Register</a> -->
+
+{% for floor, floor_rooms in floors %}
+<div class="floor-section">
+    <div class="floor-title">{{ floor }}</div>
+
+    <div class="room-grid">
+        {% for room in floor_rooms %}
+        <a href="{{ room['room_number'] }}"
+           class="room-card {{ 'available' if room['is_available'] else 'occupied' }}">
+
+            <div class="room-number">
+                {{ room['room_number'] }}
+            </div>
+
+            <div class="status">
+                {{ 'Available' if room['is_available'] else room.time_passed }} {{ ' - AC' if room['ac'] }}
+            </div>
+            <!-- On Hover Show name and phone number -->
+              {% if not room['is_available'] %}
+                <div class="tooltip-box">
+                    <div><strong>Name:</strong> {{ room.name }}</div>
+                    <div><strong>Phone:</strong> {{ room.phone }}</div>
+                </div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

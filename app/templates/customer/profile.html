@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container" style="margin: auto;">
+
+    <!-- ================= CUSTOMER HEADER ================= -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+            <h2 style="margin-bottom:4px;">{{ customer.name }}</h2>
+        </div>
+        <div>
+            <span class="btn-primary" style="padding:6px 12px;border-radius:6px;">
+                Customer ID #{{ customer.id }}
+            </span>
+        </div>
+    </div>
+
+    <!-- ================= BASIC INFO ================= -->
+    <form action="/customer/alter/{{customer.id}}" method="post">
+        <input type="hidden" value="{{customer.id}}">
+        <div class="row">
+            <div class="input-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="{{ customer.name }}">
+            </div>
+            <div class="input-group">
+                <label for="id_type">ID Type</label>
+                <input type="text" name="id_type" id="id_type" value="{{ customer.id_type }}">
+            </div>
+            <div class="input-group">
+                <label for="id_detail">ID Detail</label>
+                <input type="text" name="id_detail" id="id_detail" value="{{ customer.id_detail }}">
+            </div>
+        </div>
+         <div class="row">
+            <div class="input-group">
+                <label for="phone">Phone</label>
+                <input type="number" name="phone" id="phone" value="{{ customer.phone }}">
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" value="{{ customer.email or '' }}">
+            </div>
+            
+            <div class="input-group">
+                <label for="address">Address</label>
+                <input type="text" name="address" id="address" value="{{ customer.address }}">
+            </div>
+        </div>
+        <div class="row">
+            <button class="btn-success" id="update">Update</button>
+        </div>
+    </form>
+
+    <!-- ================= ANALYTICS CARDS ================= -->
+    <h3 style="margin-top:30px;">📊 Customer Analytics</h3>
+
+    <div class="row">
+        <div class="input-group">
+            <label>Total Visits</label>
+            <input type="text" value="{{ analytics.total_visits }}" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Total Stay (Days)</label>
+            <input type="text" value="{{ analytics.total_days }}" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Average Stay (Days)</label>
+            <input type="text" value="{{ analytics.avg_stay }}" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Total Amount Spent</label>
+            <input type="text" value="₹ {{ '%.2f'|format(analytics.total_spent) }}" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Last Visit</label>
+            <input type="text"
+                   value="{{ analytics.last_visit.strftime('%d-%m-%Y') if analytics.last_visit else '—' }}"
+                   readonly>
+        </div>
+    </div>
+
+    <!-- ================= STAY HISTORY ================= -->
+    <h3 style="margin-top:40px;">🏨 Stay History</h3>
+
+    <div>
+        <table class="table-wrapper">
+            <thead>
+                <tr>
+                    <th>Reg ID</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Days</th>
+                    <th>Persons</th>
+                    <th>Rent / Day</th>
+                    <th>AC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in registers %}
+                <tr>
+                    <td>{{ reg.reg_id or reg.id }}</td>
+                    <td>{{ reg.room.room_number if reg.room else '—' }}</td>
+                    <td>{{ reg.check_in.strftime('%d-%m-%Y') }}</td>
+                    <td>
+                        {{ reg.check_out.strftime('%d-%m-%Y') if reg.check_out else 'Active' }}
+                    </td>
+                    <td>
+                        {% if reg.check_out %}
+                            {{ (reg.check_out - reg.check_in).days }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>{{ reg.number_of_persons }}</td>
+                    <td>₹ {{ reg.rent_per_day }}</td>
+                    <td>{{ 'Yes' if reg.ac else 'No' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">No stay records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================= PAYMENT HISTORY ================= -->
+    <h3 style="margin-top:40px;">💳 Payment History</h3>
+
+    <div class="">
+        <table class="table-wrapper">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Register ID</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Transaction Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td>{{ txn.id }}</td>
+                    <td>{{ txn.register_id }}</td>
+                    <td>₹ {{ txn.amount_paid }}</td>
+                    <td>{{ txn.payment_method }}</td>
+                    <td>{{ txn.transaction_time.strftime('%d-%m-%Y %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center;">No transactions found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+<!--  
+- Paginate through api for 10 rows per table [Transaction, Register]
+- Edit Customer Details
+-->

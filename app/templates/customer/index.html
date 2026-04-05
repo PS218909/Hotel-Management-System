@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+    <div class="row">
+        <input type="text" name="name" id="name" placeholder="Name" required autocomplete="off">
+        <input type="tel" name="phone" id="phone" placeholder="Phone Number" required autocomplete="off">
+        <input type="email" name="email" id="email" placeholder="Email" required autocomplete="off">
+        <input type="text" name="address" id="address" placeholder="Address" required autocomplete="off">
+        <input type="text" name="id_type" id="id_type" placeholder="ID Type" required autocomplete="off">
+        <input type="text" name="id_detail" id="id_detail" placeholder="ID Detail" required autocomplete="off">
+    </div>
+    <table class="table-wrapper">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Id Type</th>
+                <th>Id Details</th>
+            </tr>
+        </thead>
+        <tbody id="customer_list">
+            {% for customer in customers %}
+                <tr data-href="{{customer['id']}}">
+                    <td>{{ customer['name'] }}</td>
+                    <td>{{ customer['phone'] }}</td>
+                    <td>{{ customer['email'] or '' }}</td>
+                    <td>{{ customer['address'] }}</td>
+                    <td>{{ customer['id_type'] }}</td>
+                    <td>{{ customer['id_detail'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        const nameInput = document.getElementById("name");
+        const phoneInput = document.getElementById("phone");
+        const emailInput = document.getElementById("email");
+        const addressInput = document.getElementById("address");
+        const idTypeInput = document.getElementById("id_type");
+        const idDetailInput = document.getElementById("id_detail");
+        function search_customer() {
+            const params = new URLSearchParams({
+                name: nameInput.value,
+                phone: phoneInput.value,
+                email: emailInput.value,
+                address: addressInput.value,
+                id_type: idTypeInput.value,
+                id_detail: idDetailInput.value,
+            })
+            fetch(`/api/search/customer?${params.toString()}`).then(res => {
+                return res.json();
+            }).then((res) => {
+                const customer_list = document.getElementById('customer_list');
+                customer_list.innerHTML = '';
+                const format = ['name', 'phone', 'email', 'address', 'id_type', 'id_detail'];
+                res.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-href', row.id)
+                    format.forEach((cell) => {
+                        const td = document.createElement('td');
+                        td.innerText = row[cell];
+                        tr.appendChild(td);
+                    });
+                    tr.ondblclick = (eve) => {
+                        window.location = `/customer/${row.id}`
+                    }
+                    customer_list.appendChild(tr);
+                })
+            }).catch((exception) => {
+                console.error(exception);
+            })
+        }
+        debounce(search_customer, [nameInput, phoneInput, emailInput, addressInput, idTypeInput, idDetailInput], 300);
+
+        // Move to customer page
+        document.querySelectorAll('[data-href]').forEach(element => {
+            element.addEventListener('dblclick', (eve) => {
+                window.location = `/customer/${element.getAttribute('data-href')}`
+            })
+        })
+    </script>
+{% endblock %}

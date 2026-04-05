@@ -11,10 +11,8 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 - **Transaction Management**
 - **Report Generation**
 - **Discord Webhook Alerts**
-- **Discord Bot Commands**
-- **Analysis**
-- **Role-Based User Authentication**
-- **Event Log**
+- **Discord Bot**
+- **Customer Analysis**
 
 ---
 
@@ -23,10 +21,13 @@ A simple yet functional Hotel Management System built using **Flask**, **Pandas*
 ### Requirements
 
 - Python 3.8+
-- Flask  
+- Flask
 - Pandas  
 - python-docx  
-- flask-cors  
+- flask-cors
+- discord.py
+- flask-sqlalchemy
+- requests
 - backports.zoneinfo *(for Python < 3.9)*
 
 ---
@@ -45,15 +46,12 @@ Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-Update src/config.py (To utilize all the function): 
+Go to admin page and update all the config variable.
 ```python
 HOTEL_NAME = "Hotel Name"
 HOTEL_ADDRESS = "Hotel Address"
 ....
-TESTING_CHANNEL_ID = 0 
-UPDATE_CHANNEL_ID = 0  
 DISCORD_BOT_TOKEN = "BOT TOKEN"
-
 ```
 Start the application:
 ```bash
@@ -62,6 +60,6 @@ python main.py
 ---
 
 ## 🚀 Future Improvements
--  Replace CSV with SQLite
--  Add more operations
--  Improve UI
+-  Replace CSV with SQLite [✅]
+-  Add more operations [✅]
+-  Improve UI [✅]

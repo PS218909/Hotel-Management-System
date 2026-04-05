@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Hotel Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/debounce.js') }}"></script>
+    <script>
+        class Modal {
+            constructor (triggerButtonId) {
+                this.triggerBtn = document.getElementById(triggerButtonId);
+                if (!this.triggerBtn) return;
+
+                const modalId = this.triggerBtn.dataset.trigger;
+                this.modal = document.getElementById(modalId);
+
+                this.closeBtn = this.modal.querySelectorAll('[data-dismiss=modal]');
+
+                this.init();
+            }
+
+            init() {
+                this.triggerBtn.addEventListener('click', () => {
+                    this.open();
+                });
+
+                this.closeBtn.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.close();
+                    })
+                });
+                
+                this.modal.addEventListener("click", (e) => {
+                    if (e.target === this.modal) {
+                        this.close();
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.close();
+                    }
+                })
+            }
+
+            open() {
+                this.modal.classList.add('modal-active');
+            }
+
+            close() {
+                this.modal.classList.remove('modal-active');
+            }
+
+        }
+    
+        class Paginator {
+            constructor({url, pageParam = 'page', limitParam = 'per_page', limit = 50, startPage = 0, fetchOptions = {}}) {
+                this.url = url;
+                this.pageParam = pageParam;
+                this.limitParam = limitParam;
+                this.limit = limit;
+                this.page = startPage;
+                this.fetchOptions = fetchOptions;
+            }
+
+            buildURL(params = {}) {
+                const searchParams = new URLSearchParams({
+                    ...params,
+                    [this.pageParam]: this.page,
+                    [this.limitParam]: params.per_page || this.limit
+                });
+
+                return `${this.url}?${searchParams.toString()}`;
+            }
+
+            async fetch(params = {}) {
+                const response = await fetch(
+                    this.buildURL(params),
+                    this.fetchOptions
+                );
+
+                if (!response.ok) {
+                    return [];
+                }
+
+                return response.json();
+            }
+
+            async next(params = {}) {
+                this.page += 1;
+                const data = await this.fetch(params);
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    this.page -= 1;
+                    return [];
+                }
+
+                return data;
+            }
+
+            async prev(params = {}) {
+                if (this.page <= 1) {
+                    return []
+                };
+
+                this.page -= 1;
+                return this.fetch(params);
+            }
+
+            async goTo(page, params = {}) {
+                if (page < 0) return [];
+
+                this.page = page;
+                return this.fetch(params);
+            }
+
+            reset() {
+                this.page = 0;
+            }
+
+            get currentPage() {
+                return this.page;
+            }
+        }
+
+        const buffer = [];
+        const godMode = 'godmodekey'.split(''); // Delete readonly attribute from some pages and doesn't allow access to admin page
+        window.onkeydown = (e) => {
+            buffer.push(e.key.toLowerCase())
+            if (buffer.length > godMode.length)
+                buffer.shift()
+            if (JSON.stringify(buffer) === JSON.stringify(godMode)) {
+                if (!sessionStorage.getItem('godMode')) {
+                    sessionStorage.setItem('godMode', true);
+                    alert('Admin Mode Activated.');
+                    buffer.filter(() => false);
+                } else {
+                    alert('Admin Mode Dectivated.');
+                    sessionStorage.removeItem('godMode')
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <div>
+            <h2>{{ hotel_name or 'Hotel Management System' }}</h2>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/account">Account</a></li>
+                <li><a href="/report">Report</a></li>
+                <li><a href="/customer">Customer</a></li>
+                <li class="dropdown">
+                    <a href="#">&#9776;</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/admin">Admin</a></li>
+                        <li><a href="/migrate">Migrate</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class=flashes>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

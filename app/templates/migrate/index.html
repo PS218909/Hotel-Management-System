@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<fieldset>
+    <legend>Import</legend>
+    <form action="import" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <input type="file" name="csv_data" id="csv_data" accept="application/zip,application/x-zip-compressed" required />
+        </div>
+        <div class="row">
+            <button type="submit" class="btn-success">Submit</button>
+        </div>
+    </form>
+</fieldset>
+<div class="row">
+    <a href="export"><button class="btn-success" style="width: 100%;">Export</button></a>
+</div>
+{% endblock %}

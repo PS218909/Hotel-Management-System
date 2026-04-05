@@ -1,0 +1,434 @@
+/* =========================================================
+   DESIGN TOKENS (LIGHT MODE DEFAULT)
+========================================================= */
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+
+    --success: #16a34a;
+    --success-hover: #1a943e;
+    --danger: #dc2626;
+    --danger-hover: #c41616;
+    --warning: #d97706;
+    --info: #0284c7;
+
+    --bg: #ffffff;
+    --bg-muted: #d6d6d6;
+    --bg-header: #f3f4f6;
+
+    --border: #e5e7eb;
+
+    --text: #111827;
+    --text-muted: #6b7280;
+
+    --row-even: #f9fafb;
+    --row-hover: #eef2ff;
+}
+
+/* =========================================================
+   AUTO DARK MODE (OS PREFERENCE)
+========================================================= */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #60a5fa;
+        --primary-hover: #3b82f6;
+
+        --success: #22c55e;
+        --danger: #f87171;
+        --warning: #fbbf24;
+        --info: #38bdf8;
+
+        --bg: #0f172a;
+        --bg-muted: #020617;
+        --bg-header: #020617;
+
+        --border: #1e293b;
+
+        --text: #e5e7eb;
+        --text-muted: #94a3b8;
+
+        --row-even: #020617;
+        --row-hover: #1e293b;
+    }
+}
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+nav {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 5px;
+}
+
+nav > div {
+    margin: auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: var(--primary);
+}
+
+nav .dropdown {
+    position: relative;
+}
+
+nav .dropdown .dropdown-menu {
+    display: none;
+    right: 0;
+    position: absolute;
+    padding: 5px 10px;
+    background-color: var(--bg-header);
+}
+
+nav .dropdown:hover .dropdown-menu {
+    display: list-item;
+}
+
+nav .dropdown:hover .dropdown-menu li {
+    margin: 0px 7px;
+}
+
+/* =========================================================
+   FLASH MESSAGES
+========================================================= */
+.flashes {
+    max-width: 1200px;
+    margin: 12px auto;
+    padding: 0;
+    list-style: none;
+}
+
+.flashes li {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.flashes .success { background: rgba(22,163,74,.15); }
+.flashes .error,
+.flashes .danger { background: rgba(220,38,38,.15); }
+
+/* =========================================================
+   FLEX
+========================================================= */
+.flex {
+    display: flex;
+    justify-content: space-around;
+}
+
+/* =========================================================
+   FORM CONTAINER
+========================================================= */
+.form-container {
+    max-width: 1200px;
+    /* margin-inline: 20px;
+    padding: 20px; */
+    background: var(--bg);
+}
+
+/* =========================================================
+   INPUTS (ALL TYPES)
+========================================================= */
+input:not([type="radio"]):not([type="hidden"]),
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37,99,235,.15);
+}
+
+input[type="hidden"] {
+    display: none;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* =========================================================
+   RADIO INPUTS
+========================================================= */
+.ac-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.ac-inputs label {
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+button {
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button[type="submit"] {
+    background: var(--primary);
+    color: #fff;
+}
+
+button[type="submit"]:hover {
+    background: var(--primary-hover);
+}
+
+button[type="reset"] {
+    background: var(--bg-muted);
+    color: var(--text);
+}
+
+/* =========================================================
+   MODAL (USING YOUR STRUCTURE)
+========================================================= */
+.modal {
+    padding-top: 45px;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+}
+
+.modal-active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 5;
+}
+
+.modal-content {
+    width: 80%;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 20px;
+    max-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-close {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal-body {
+    margin-top: 12px;
+    overflow-y: auto;
+}
+
+/* =========================================================
+   SEARCH ROW
+========================================================= */
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 16px 0px;
+}
+
+/* =========================================================
+   BUTTON STYLING
+========================================================= */
+
+button:disabled {
+    cursor:not-allowed;
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: #fff;
+}
+
+.btn-success:hover {
+    background-color: var(--success-hover);
+    color: #fff;
+}
+
+.btn-error, .btn-danger {
+    background-color: var(--danger);
+    color: #fff;
+}
+
+.btn-error:hover, .btn-danger:hover {
+    background-color: var(--danger-hover);
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: #fff;
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    color: #fff;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+.table-wrapper {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-wrapper thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-header);
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    z-index: 3;
+}
+
+.table-wrapper tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.table-wrapper tbody tr:nth-child(even) {
+    background: var(--row-even);
+}
+
+.table-wrapper tbody tr:hover {
+    background: var(--row-hover);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 768px) {
+    nav > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .table-wrapper {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+
+/* =========================================================
+   INPUT GROUP LAYOUT
+========================================================= */
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-muted);
+}
+
+/* Prevent double spacing (since inputs already have margin-bottom) */
+.input-group input,
+.input-group textarea,
+.input-group select {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   VALIDATION STATES
+========================================================= */
+.input-group input:invalid,
+.input-group textarea:invalid,
+.input-group select:invalid {
+    border-color: var(--danger);
+    background-color: rgba(220, 38, 38, 0.05);
+}
+
+.input-group input:valid,
+.input-group textarea:valid,
+.input-group select:valid {
+    border-color: var(--success);
+    background-color: rgba(22, 163, 74, 0.05);
+}
+
+.input-group .ac-inputs {
+    justify-content: flex-start;
+    margin-top: 6px;
+    margin-bottom: 0;
+}

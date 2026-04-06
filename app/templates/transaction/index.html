@@ -1,9 +1,61 @@
 {% extends 'base.html' %}
 {% block title %}Transactions{% endblock %}
 {% block content %}
+    <style>/* Card */
+        .card {
+            flex: 1;
+            min-width: 200px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Hover effect */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Card content */
+        .card-content {
+            padding: 20px;
+        }
+
+        /* Title */
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        /* Body (amount text) */
+        .card-body {
+            font-size: 24px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        /* Optional: Different colors for each card */
+        .card:nth-child(1) {
+            border-left: 5px solid #4CAF50; /* Total */
+        }
+
+        .card:nth-child(2) {
+            border-left: 5px solid #2196F3; /* Cash */
+        }
+
+        .card:nth-child(3) {
+            border-left: 5px solid #FF9800; /* UPI */
+        }
+    </style>
     <div class="row">
         <input type="hidden" id="page" value="1">
-        <input type="hidden" id="per_page" value="10">
+        <div class="input-group">
+            <label for="per_page">Per Page</label>
+            <input type="number" id="per_page" value="10">
+        </div>
         <div class="input-group">
             <label for="name">Name</label>
             <input type="text" id="name" placeholder="Name" autocomplete="off">
@@ -22,7 +74,26 @@
             <input type="date" id="transaction_date">
         </div>
     </div>
-    <div id="debug"></div>
+    <div class="flex">
+        <div class="card">
+            <div class="card-content">
+                <div class="card-title">Total</div>
+                <div class="card-body" id="totalAmount"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <div class="card-title">Cash</div>
+                <div class="card-body" id="cashAmount"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <div class="card-title">UPI</div>
+                <div class="card-body" id="UPIAmount"></div>
+            </div>
+        </div>
+    </div>
     <table class="table-wrapper">
         <thead>
             <tr>
@@ -55,11 +126,12 @@
         <button class="btn-success" id="nextBtn">Next</button>
     </div>
     <script>
+        const per_page = document.getElementById('per_page');
         const name = document.getElementById('name');
         const payment_method = document.getElementById('payment_method');
         const transaction_date = document.getElementById('transaction_date');
         const tbody = document.getElementById('transaction_table');
-
+        transaction_date.valueAsDate = new Date();
         const transaction_paginator = new Paginator({url: '/api/search/transaction'});
         
         function collectFilters() {
@@ -101,7 +173,7 @@
 
         function redrawRegisterTable(data) {
             tbody.innerHTML = "";
-
+            const sums = {total: 0, cash: 0, upi: 0}
             data.forEach((item, index) => {
                 const tr = document.createElement("tr");
 
@@ -116,9 +188,16 @@
                         <button class="btn-danger" data-index="${index}">Delete</button>
                     </td>
                 `;
+                console.log(item);
+                sums[item.payment_mode.toLowerCase()] = (sums[item.payment_mode.toLowerCase()] ?? 0) + item.amount_paid;
+                sums.total += item.amount_paid;
 
                 tbody.appendChild(tr);
             });
+            console.log(sums);
+            document.getElementById('totalAmount').innerText = sums.total;
+            document.getElementById('cashAmount').innerText = sums.cash;
+            document.getElementById('UPIAmount').innerText = sums.upi;
         }
 
         async function debounce_search_customer() {
@@ -139,7 +218,7 @@
                 redrawRegisterTable(res);
         }
 
-        debounce(debounce_search_customer, [name, payment_method]);
+        debounce(debounce_search_customer, [per_page, name, payment_method]);
         transaction_date.oninput = debounce_search_customer;
         debounce_search_customer();
     </script>

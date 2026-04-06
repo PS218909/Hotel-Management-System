@@ -35,7 +35,7 @@ def run_discord_bot():
 
 def main():
     app = create_app(Config)
-
+    app.run(debug=True)
     # Ensure config file exists
     os.makedirs('instance', exist_ok=True)
     config_path = os.path.join('instance', 'config.json')

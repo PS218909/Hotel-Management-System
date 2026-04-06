@@ -9,7 +9,7 @@ from app.models.user import User
 from app.extensions import db
 from sqlalchemy.exc import IntegrityError
 
-from app.services.migrate import import_data
+from app.services.migrate import import_data, export_data
 
 from app.util.helper import model_to_csv
 
@@ -123,20 +123,7 @@ def migrate_import():
 
 @migrate_bp.route('/export', methods=['GET'])
 def migrate_export():
-    customers = Customer.query.all()
-    records = Register.query.all()
-    rooms = Room.query.all()
-    transactions = Transaction.query.all()
-    zip_buffer = io.BytesIO()
-
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr('customers.csv', model_to_csv(Customer, customers))
-        zf.writestr('registers.csv', model_to_csv(Register, records))
-        zf.writestr('rooms.csv', model_to_csv(Room, rooms))
-        zf.writestr('transactions.csv', model_to_csv(Transaction, transactions))
-
-    zip_buffer.seek(0)
-
+    zip_buffer = export_data()
     # Timestamped filename
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'dataset_{timestamp}.zip'

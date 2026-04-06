@@ -11,6 +11,22 @@ from sqlalchemy import insert
 import io, zipfile, time, random
 import pandas as pd
 
+def export_data():
+    customers = Customer.query.all()
+    records = Register.query.all()
+    rooms = Room.query.all()
+    transactions = Transaction.query.all()
+    zip_buffer = io.BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr('customers.csv', model_to_csv(Customer, customers))
+        zf.writestr('registers.csv', model_to_csv(Register, records))
+        zf.writestr('rooms.csv', model_to_csv(Room, rooms))
+        zf.writestr('transactions.csv', model_to_csv(Transaction, transactions))
+
+    zip_buffer.seek(0)
+    return zip_buffer
+
 def import_data(zip_file):
     ref = {}
     with zipfile.ZipFile(zip_file, 'r') as zip:

@@ -1,6 +1,6 @@
 import discord, re
 from discord.ext import tasks, commands
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from app import create_app
 from app.config import Config
@@ -11,12 +11,14 @@ app.app_context().push()
 from app.services.register import get_active_registers, get_register_by_current_stay, Room
 from app.services.room import get_all_rooms
 from app.services.transaction import get_all_transaction_api, Transaction
+from app.services.migrate import export_data
 from app.util.helper import generate_image, get_config
 
 REPEAT_AFTER = 45
 DELETE_AFTER = 30 * 60
 DISCORD_CHANNEL_ID_TEST = get_config().get('DISCORD_CHANNEL_ID_TEST', 0)
 DISCORD_CHANNEL_ID_UPDATES = get_config().get('DISCORD_CHANNEL_ID_UPDATES', 0)
+SCHEDULED_BACKUP_TIME = time(hour=12, minute=0)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -63,7 +65,7 @@ def message_parser(content):
         return 'Transaction', selected_transaction
     
     trigger_phrases = ('status', 'view')
-    is_asking_about_img = any(phrase for phrase in trigger_phrases)
+    is_asking_about_img = any(phrase in content for phrase in trigger_phrases)
     if is_asking_about_img:
         return 'Status', generate_image()
     
@@ -72,8 +74,22 @@ def message_parser(content):
     if is_asking_about_delete:
         count = re.findall(r'\d+', content)
         return 'Delete', [int(i) for i in count]
+    
+    trigger_phrases = ('get data', 'fetch', 'backup')
+    is_asking_about_backup = any(phrase in content for phrase in trigger_phrases)
+    if is_asking_about_backup:
+        return 'Backup', export_data()
 
     return None, []
+
+@tasks.loop(time=SCHEDULED_BACKUP_TIME)
+async def upload_backup():
+    if datetime.now().weekday() in [0, 3]:
+        DISCORD_CHANNEL = DISCORD_CHANNEL_ID_TEST or DISCORD_CHANNEL_ID_UPDATES
+        if DISCORD_CHANNEL:
+            channel = bot.get_channel(int(DISCORD_CHANNEL))
+            export = discord.File(fp=export_data(), description='Scheduled Backup')
+            await channel.send(file=export)
 
 @tasks.loop(minutes=REPEAT_AFTER)
 async def send_updates():
@@ -92,6 +108,8 @@ async def on_ready():
     print(f'Logged in as {bot.user}')
     if not send_updates.is_running():
         send_updates.start()
+    if not upload_backup.is_running():
+        upload_backup.start()
 
 @bot.event
 async def on_message(message):
@@ -119,3 +137,8 @@ async def on_message(message):
             if context == 'Status':
                 file = discord.File(fp=data, filename='update.png', description='Updated')
                 await message.channel.send(file=file, delete_after=DELETE_AFTER)
+            
+            if context == 'Backup':
+                print('Backup is running')
+                file = discord.File(fp=data, filename='Backup Data', description='Backup')
+                await message.channel.send(file=file)

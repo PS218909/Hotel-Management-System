@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, render_template, flash
-from app.services.register import get_register_by_id, alter_register, get_all_registers, delete_all_record
+from app.services.register import get_register_by_id, alter_register, get_all_registers, delete_register
 from app.services.transaction import get_transaction_by_register_id, get_all_transaction_api
 from app.services.room import get_all_rooms
 from typing import Any
@@ -54,7 +54,10 @@ def form_register(register_id):
         payments = get_transaction_by_register_id(register_id=register.id)
         return render_template('register/form.html', register=register, payments=payments)
     
-@register_bp.route('/delete')
-def delete_register():
-    # delete_all_record()
-    return redirect(url_for('room.list_rooms'))
+@register_bp.route('/delete/<int:id>')
+def delete_register_(id):
+    if delete_register(id):
+        return jsonify({'success': True, 'message': f'[+] {id} deleted successfully.'})
+    else:
+        return jsonify({'success': False, 'message': f'[-] Unable to delete {id} .'})
+        

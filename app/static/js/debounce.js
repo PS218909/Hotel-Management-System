@@ -1,9 +1,10 @@
 function debounce(func, inputs, timeout = 500) {
     for (const input of inputs) {
         let timer;
-        input.addEventListener('keyup', () => {
+        const eventType = input.tagName === 'SELECT' ? 'change' : 'keyup';
+        input.addEventListener(eventType, () => {
             clearTimeout(timer);
-            timer = setTimeout(() => {func()} ,timeout);
+            timer = setTimeout(() => func(), timeout);
         });
     }
 }

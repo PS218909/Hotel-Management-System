@@ -2,8 +2,6 @@
 {% block title %}Register{% endblock %}
 {% block content %}
     <div class="row">
-        <input type="hidden" id="page" value="1">
-        <input type="hidden" id="per_page" value="10">
         <div class="input-group">
             <label for="name">Name</label>
             <input type="text" id="name" placeholder="Name" autocomplete="off">
@@ -37,6 +35,18 @@
         <div class="input-group">
             <label for="room_no">Room No</label>
             <input type="text" id="room_no" placeholder="Room No." autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label for="page">Page No.</label>
+            <input type="number" id="page" placeholder="Page" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label for="per_page">Per Page</label>
+            <select id="per_page" placeholder="Page" autocomplete="off">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
         </div>
     </div>
     <div class="row">
@@ -84,14 +94,24 @@
             'remain_balance_gt',
             'remain_balance_lt',
             'room_no',
-            'page',
-            'per_page'
         ];
+
+        const fields2 = [
+            'page',
+            'per_page',
+        ]
         function collectFilters() {
             const filters = {};
 
 
             fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value !== '') {
+                    filters[id] = el.value;
+                }
+            });
+            
+            fields2.forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.value !== '') {
                     filters[id] = el.value;
@@ -152,22 +172,33 @@
             paginator.reset();
             const data = await paginator.next(filters);
             if (data) redrawRegisterTable(data);
+
+            document.getElementById('page').value = paginator.page;
         });
 
         document.getElementById('btn-next').addEventListener('click', async () => {
             const filters = collectFilters();
             const data = await paginator.next(filters);
             if (data.length >= 1) redrawRegisterTable(data);
+
+            document.getElementById('page').value = paginator.page;
         });
         
         document.getElementById('btn-prev').addEventListener('click', async () => {
             const filters = collectFilters();
             const data = await paginator.prev(filters);
             if (data.length >= 1) redrawRegisterTable(data);
+
+            document.getElementById('page').value = paginator.page;
         });
         
         document.getElementById('btn-next').click();
 
         debounce(() => {document.getElementById('btn-search').click()}, fields.map(id => document.getElementById(id)))
+        debounce(async () => {
+            const filters = collectFilters();
+            const data = await paginator.goTo(document.getElementById('page').value || 1, filters);
+            if (data.length >= 1) redrawRegisterTable(data);
+        }, fields2.map(id => document.getElementById(id)));
     </script>
 {% endblock %}

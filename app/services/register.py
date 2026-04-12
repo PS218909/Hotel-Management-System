@@ -37,6 +37,7 @@ def delete_register(register_id):
     register = get_register_by_id(register_id)
     if not register:
         return False
+    db.session.query(Transaction).filter(Transaction.register_id == register_id).delete(synchronize_session='fetch')
     db.session.delete(register)
     db.session.commit()
     return True
